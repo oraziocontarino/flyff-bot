@@ -1,12 +1,15 @@
 #include <WinAPISysWin.au3>
 #include <WindowsConstants.au3>
 #include <GUIConstantsEx.au3>
-
+Global $TITLE = "FlyFF Bot"
+Global $VERSION = "0.1.0"
 Global $MAX_WIDTH = 300
 Global $MAX_ROWS = 14
 Global $maxConfigurations = 10
 Global $configurations[$maxConfigurations]
-Global $keyPrefix = "key_"
+Global $keyPrefix = "Key: "
+Global $keyAltPrefix = "Alt + "
+Global $keyCtrlPrefix = "Ctrl + "
 Global $keyDownTime = 1000
 Global $rowHeight = 25
 Global $padding = 4 ; Used to separate pair element (label,input) from next ones. Also used to separate rows
@@ -28,50 +31,67 @@ Func runActionSlot()
   sendKeyUp(retrieveKeyCode("c"))
 EndFunc
 
-Func sendKeyDown($keyCode)
-  ConsoleWrite("Sending KEYDOWN " & $keyCode & @CRLF)
-  _WinAPI_PostMessage($hwnd, $WM_KEYDOWN, $keyCode, 0)
+Func sendKeyDown($keyData)
+  For $i = 1 To $keyData[0] Step 1
+    Local $keyCode = $keyData[$i]
+    ConsoleWrite("Sending KEYDOWN " & $keyCode & @CRLF)
+    _WinAPI_PostMessage($hwnd, $WM_KEYDOWN, $keyCode, 0)
+  Next
 EndFunc
 
-Func sendKeyUp($keyCode)
-  ConsoleWrite("Sending KEYUP " & $keyCode & @CRLF)
-  _WinAPI_PostMessage($hwnd, $WM_KEYUP, $keyCode, 0)
+Func sendKeyUp($keyData)
+  For $i = 1 To $keyData[0] Step 1
+    Local $keyCode = $keyData[$i]
+    ConsoleWrite("Sending KEYUP " & $keyCode & @CRLF)
+    _WinAPI_PostMessage($hwnd, $WM_KEYUP, $keyCode, 0)
+  Next
+EndFunc
+
+
+Func buildKeyData($maxKeysDown, $keyCode1, $keyCode2)
+  Local $keyData[$maxKeysDown + 1]
+
+  $keyData[1] = $keyCode1
+  If $keyCode2 <> Null Then
+    $keyData[0] = 2 ;size of keys to press
+    $keyData[2] = $keyCode2
+  Else
+    $keyData[0] = 1 ;size of keys to press
+  EndIf
+  return $keyData
 EndFunc
 
 Func retrieveKeyCode($rawKey)
   ;$key_1 = 0x61 ; Numpad-1 key, see https://docs.microsoft.com/en-us/windows/desktop/inputdev/virtual-key-codes
+  Local $maxKeysDown = 9
+
+  Local $base = 0x60
+  Local $ctrlKey = 0x11
+  Local $altKey = 0x12
+  local $cKey = 0x43
+
+  For $i = 0 To $maxKeysDown Step 1
+    Local $baseKey = $keyPrefix & $i
+    Local $altBaseKey = $keyAltPrefix & $i
+    Local $ctrlBaseKey = $keyCtrlPrefix & $i
+
+    If $rawKey = $baseKey Then
+      return buildKeyData($maxKeysDown, $base + $i, Null)
+    ElseIf $rawKey = $ctrlBaseKey Then
+      return buildKeyData($maxKeysDown, $ctrlKey, $base + $i)
+    ElseIf $rawKey = $altBaseKey Then
+      return buildKeyData($maxKeysDown, $altKey, $base + $i)
+    EndIf
+  Next
   Switch $rawKey
-    Case "key_0"
-      return 0x60
-    Case "key_1"
-      return 0x61
-    Case "key_2"
-      return 0x62
-    Case "key_3"
-      return 0x63
-    Case "key_4"
-      return 0x64
-    Case "key_5"
-      return 0x65
-    Case "key_6"
-      return 0x66
-    Case "key_7"
-      return 0x67
-    Case "key_8"
-      return 0x68
-    Case "key_9"
-      return 0x69
     Case "c"
-      return 0x43
+      return buildKeyData($maxKeysDown, $cKey, Null)
   EndSwitch
 EndFunc
 
 Func scheduleActions()
   $hwnd = WinGetHandle($windowName)
 
-  Local $processedActions[10]
-  Local $lastProcessedIndex = 0
-  ;ConsoleWrite("Scheduling actions " & UBound($configurations)&@CRLF)
   For $i = 0 to UBound($configurations) -1
     Local $action = $configurations[$i]
     If Not $action[5] Then
@@ -83,25 +103,26 @@ Func scheduleActions()
     If $delta > ($action[3] * 1000) Then
       $action[6] = TimerInit()
       $configurations[$i] = $action
-      $processedActions[$lastProcessedIndex] = $action
-      $lastProcessedIndex = $lastProcessedIndex + 1
       ConsoleWrite("Process action: {combo: '" & $action[1] & "', delay: '" & $action[3] & "', active: '" & $action[5] & "', time: '" & $action[6] & "'}" & @CRLF)
       sendKeyDown(retrieveKeyCode($action[1]))
+      sendKeyUp(retrieveKeyCode($action[1]))
     EndIf
-  Next
-
-  ;Sleep($keyDownTime)
-  For $i = 0 to $lastProcessedIndex - 1
-    Local $action = $processedActions[$i]
-    sendKeyUp(retrieveKeyCode($action[1]))
   Next
 EndFunc
 
 Func generateKeyLabelsForCombo()
   Local $allKeys = ""
 
-  For $i = 1 To 10 Step +1
+  For $i = 1 To 9 Step +1
     $allKeys = $allKeys & "|" & $keyPrefix & $i
+  Next
+
+  For $i = 1 To 9 Step +1
+    $allKeys = $allKeys & "|" & $keyAltPrefix & $i
+  Next
+
+  For $i = 1 To 9 Step +1
+    $allKeys = $allKeys & "|" & $keyCtrlPrefix & $i
   Next
   return StringTrimLeft($allKeys, 1)
 EndFunc
@@ -124,7 +145,7 @@ Func addBindingRow($rowIndex, ByRef $nextRowId)
   ; Key list - Combo
   $width=75
   Local $keys = generateKeyLabelsForCombo()
-  Local $defaultKey = "key_" & $rowIndex
+  Local $defaultKey = $keyPrefix & $rowIndex
   Local $combo = GUICtrlCreateCombo($defaultKey, $xPos, $yPos, $width)
   GUICtrlSetData($combo, $keys, $defaultKey)
   $xPos = $xPos + $width + $padding
@@ -163,7 +184,8 @@ EndFunc
 
 Func createGui()
   ; Create a GUI with various controls.
-  Local $hGUI = GUICreate("FlyffBot", $MAX_WIDTH, $MAX_ROWS*($rowHeight+$padding))
+  Local $fullTitle = $TITLE & " v" & $VERSION
+  Local $hGUI = GUICreate($fullTitle, $MAX_WIDTH, $MAX_ROWS*($rowHeight+$padding))
 
   Local $xPos = 8
   Local $yPos = 8

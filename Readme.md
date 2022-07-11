@@ -7,3 +7,8 @@ Just set the name of the window (default value: Flyff univers in mozzila firefox
 Download and run AuotoIT script or just download the executable
 ## NB: Window Name Update
 To trigger WindowName update just hit "Enter" from keyboard
+
+## Planned features:
+- Auto-refresh follow
+- Auto-detect Captcha (only click on box)
+- Randimize delays between actions to avoid RECAPTCHA popup
