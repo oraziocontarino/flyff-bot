@@ -1,10 +1,13 @@
 #include <WinAPISysWin.au3>
 #include <WindowsConstants.au3>
 #include <GUIConstantsEx.au3>
+
 Global $TITLE = "FlyFF Bot"
-Global $VERSION = "0.1.0"
+Global $VERSION = "0.2.0"
 Global $MAX_WIDTH = 300
 Global $MAX_ROWS = 14
+Global $DELIMITER = "►"
+
 Global $maxConfigurations = 10
 Global $configurations[$maxConfigurations]
 Global $keyPrefix = "Key: "
@@ -14,16 +17,30 @@ Global $keyDownTime = 1000
 Global $rowHeight = 25
 Global $padding = 4 ; Used to separate pair element (label,input) from next ones. Also used to separate rows
 Global $paddingSm = 2 ;Used to separate label from input in a row
-Global $windowName = "Flyff Universe – Mozilla Firefox"
+Global $windowNameRegex = ".*Flyff.*Universe.*" ; Regex used to get the list of flyff windows
+Global $windowName = ""
 Global $pipe1[6]
 Global $hwnd
 
+AutoItSetOption ("GUIDataSeparatorChar", $DELIMITER)
 HotKeySet("+!x", "togglePausePipe1") ; Shift-Alt-x
 HotKeySet("+!c", "runActionSlot") ; Shift-Alt-c
+;HotKeySet("+!n", "_debug_logMousePost") ; Shift-Alt-n
+
+;Func _debug_logMousePost()
+;  leftClick(3500, 980)
+;  ;ConsoleWrite("Clicked!" & @CRLF)
+;EndFunc
+
+Func leftClick($x, $y)
+  $hwnd = WinGetHandle($windowName)
+  ControlClick($hwnd, "", "", "left", 10, $x, $y)
+  ;MouseClick($MOUSE_CLICK_LEFT, $x, $y, 2)
+EndFunc
 
 Func togglePausePipe1()
   $pipe1[5] = Not $pipe1[5] ; Toggle Pause pipe
-  ConsoleWrite("Shift alt d pressed!" & @CRLF)
+  ;ConsoleWrite("Shift alt d pressed!" & @CRLF)
 EndFunc
 
 Func runActionSlot()
@@ -34,7 +51,7 @@ EndFunc
 Func sendKeyDown($keyData)
   For $i = 1 To $keyData[0] Step 1
     Local $keyCode = $keyData[$i]
-    ConsoleWrite("Sending KEYDOWN " & $keyCode & @CRLF)
+    ;ConsoleWrite("Sending KEYDOWN " & $keyCode & @CRLF)
     _WinAPI_PostMessage($hwnd, $WM_KEYDOWN, $keyCode, 0)
   Next
 EndFunc
@@ -42,7 +59,7 @@ EndFunc
 Func sendKeyUp($keyData)
   For $i = 1 To $keyData[0] Step 1
     Local $keyCode = $keyData[$i]
-    ConsoleWrite("Sending KEYUP " & $keyCode & @CRLF)
+    ;ConsoleWrite("Sending KEYUP " & $keyCode & @CRLF)
     _WinAPI_PostMessage($hwnd, $WM_KEYUP, $keyCode, 0)
   Next
 EndFunc
@@ -83,6 +100,7 @@ Func retrieveKeyCode($rawKey)
       return buildKeyData($maxKeysDown, $altKey, $base + $i)
     EndIf
   Next
+
   Switch $rawKey
     Case "c"
       return buildKeyData($maxKeysDown, $cKey, Null)
@@ -100,10 +118,20 @@ Func scheduleActions()
 
     Local $lastProcessed = 0
     Local $delta = TimerDiff($action[6])
-    If $delta > ($action[3] * 1000) Then
+    Local $timeToAwait = ($action[3] * 1000)
+    If $delta > $timeToAwait Then
       $action[6] = TimerInit()
       $configurations[$i] = $action
-      ConsoleWrite("Process action: {combo: '" & $action[1] & "', delay: '" & $action[3] & "', active: '" & $action[5] & "', time: '" & $action[6] & "'}" & @CRLF)
+      Local $message = "Process action: " & _
+        "{" & _
+        " combo: '" & $action[1] & "'," & _
+        " delay: '" & $action[3] & "'," & _
+        " active: '" & $action[5] & "'," & _
+        " time: '" & $action[6] & "'" & _
+        " timeToAwait: '" & $timeToAwait & "'" & _
+        " timePassed: '" & $delta & "'" & _
+        "}" & @CRLF
+      ConsoleWrite($message)
       sendKeyDown(retrieveKeyCode($action[1]))
       sendKeyUp(retrieveKeyCode($action[1]))
     EndIf
@@ -114,15 +142,15 @@ Func generateKeyLabelsForCombo()
   Local $allKeys = ""
 
   For $i = 1 To 9 Step +1
-    $allKeys = $allKeys & "|" & $keyPrefix & $i
+    $allKeys = $allKeys & $DELIMITER & $keyPrefix & $i
   Next
 
   For $i = 1 To 9 Step +1
-    $allKeys = $allKeys & "|" & $keyAltPrefix & $i
+    $allKeys = $allKeys & $DELIMITER & $keyAltPrefix & $i
   Next
 
   For $i = 1 To 9 Step +1
-    $allKeys = $allKeys & "|" & $keyCtrlPrefix & $i
+    $allKeys = $allKeys & $DELIMITER & $keyCtrlPrefix & $i
   Next
   return StringTrimLeft($allKeys, 1)
 EndFunc
@@ -182,6 +210,24 @@ Func calculateNextRowYPos($nextRowId)
   return $yPos
 EndFunc
 
+Func buildWindowListComboItems()
+  Local $aWinList = WinList("[REGEXPTITLE:(?i)(" & $windowNameRegex & ")]")
+  Local $out[2]
+  $out[1] = ""
+
+  For $i = 1 To $aWinList[0][0] Step 1
+    Local $item = $aWinList[$i][0]
+    If $i = 1 Then
+      $out[0] = $item
+    EndIf
+    $out[1] = $out[1] & $DELIMITER & $item
+  Next
+
+  $out[1] = StringTrimLeft($out[1], 1)
+
+  return $out
+EndFunc
+
 Func createGui()
   ; Create a GUI with various controls.
   Local $fullTitle = $TITLE & " v" & $VERSION
@@ -200,7 +246,9 @@ Func createGui()
 
   ; Window Name - Input
   $width = 200
-  Local $windowNameInput = GUICtrlCreateInput($windowName, $xPos, $yPos, $width)
+  Local $windowComboItems = buildWindowListComboItems()
+  Local $windowNameInput = GUICtrlCreateCombo($windowComboItems[0], $xPos, $yPos, $width)
+  GUICtrlSetData($windowNameInput, $windowComboItems[1], $windowName)
   $xPos = $xPos + $width + $padding
 
   ; Increment row - increment height, reset width
@@ -216,8 +264,8 @@ Func createGui()
   $pipeStatus[2] = "RUNNING"
 
   $pipe1[0] = GUICtrlCreateLabel("Bot status: Idle - No active actions", $xPos, $yPos, $width)
-  $pipe1[1] = GUICtrlCreateLabel("Bot status: Paused - (Ctrl+Shift+1)", $xPos, $yPos, $width)
-  $pipe1[2] = GUICtrlCreateLabel("Bot status: Running... - (Ctrl+Shift+1)", $xPos, $yPos, $width)
+  $pipe1[1] = GUICtrlCreateLabel("Bot status: Paused - (Alt+Shift+x)", $xPos, $yPos, $width)
+  $pipe1[2] = GUICtrlCreateLabel("Bot status: Running... - (Alt+Shift+x)", $xPos, $yPos, $width)
   $pipe1[3] = 0 ; Active actions counter
   $pipe1[4] = "IDLE_NO_ACTIONS" ; Last status
   $pipe1[5] = false ; Force paused
@@ -244,14 +292,13 @@ Func createGui()
     $configurations[$i] = addBindingRow($i, $nextRowId)
   Next
 
-
-
   ; Display the GUI.
   GUISetState(@SW_SHOW, $hGUI)
 
   Local $begin = TimerInit()
   ; Loop until the user exits.
   While 1
+    ;_debug_logMousePost()
     Local $guiMessage = GUIGetMsg()
     Switch $guiMessage
       Case $GUI_EVENT_CLOSE
