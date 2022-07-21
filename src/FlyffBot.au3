@@ -14,7 +14,7 @@ Global $VERSION = "0.2.0"
 Global $MAX_ROWS = 14
 Global $MAX_WIDTH = 300
 Global $MAX_HEIGHT = 400
-Global $PIPE_LIST[2]
+Global $PIPE_LIST[3]
 
 HotKeySet("+!x", "togglePause") ; Shift-Alt-x
 HotKeySet("+!c", "runActionSlot") ; Shift-Alt-c
@@ -37,17 +37,33 @@ EndFunc
 
 Func test()
   ConsoleWrite("Shift alt z pressed!" & @CRLF)
-  PipeEvent_onRefreshWindowList($PIPE_LIST[0])
+  Pipe_remove($PIPE_LIST[0])
 EndFunc
 
 Func addPipe(ByRef $pipeInitData)
   For $i = 0 To UBound($PIPE_LIST) - 1 Step 1
     If $PIPE_LIST[$i] <> Null Then
+      ConsoleWrite("Add separator to pipe: " & $i & @CRLF)
       Pipe_addPipeSeparator($PIPE_LIST[$i])
     Else
-      HashMap_putFieldRaw($pipeInitData, "offsetX", $MAX_WIDTH * $i)
+
+      Local $offsetX = 8 + (($MAX_WIDTH+2) * $i)
+      ConsoleWrite("Add pipe: " & $i & " with offset: " & $offsetX & @CRLF)
+      HashMap_putFieldRaw($pipeInitData, "offsetX", $offsetX)
       $PIPE_LIST[$i] = Pipe_initPipe($pipeInitData) ; Create pipe $i
       return
+    EndIf
+  Next
+EndFunc
+
+Func processPipeEvents($guiMessage, $delta)
+  For $i = 0 To UBound($PIPE_LIST) - 1 Step 1
+    PipeEvent_onWindowNameChange($PIPE_LIST[$i], $guiMessage)
+    PipeEvent_onConfigurationChange($PIPE_LIST[$i], $guiMessage)
+    PipeEvent_onStatusChange($PIPE_LIST[$i], $guiMessage)
+    PipeEvent_onRefreshWindowList($PIPE_LIST[$i])
+    If $delta > 500 Then
+      PipeEvent_onActionSchedule($PIPE_LIST[$i])
     EndIf
   Next
 EndFunc
@@ -57,26 +73,21 @@ Func createGui()
   Local $fullTitle = $TITLE & " v" & $VERSION
   Local $rowHeight = 25
   Local $padding = 4
-  Local $hGUI = GUICreate($fullTitle, ($MAX_WIDTH+8)*2, $MAX_ROWS*($rowHeight+$padding))
+  ConsoleWrite("WINDOW-SIZE --> WINDOW: " & (($MAX_WIDTH+8)*3 - 8) & "px " & @CRLF)
+  Local $hGUI = GUICreate($fullTitle, ($MAX_WIDTH+2)*3, $MAX_ROWS*($rowHeight+$padding))
 
-  ;For $i = 0 To UBound($PIPE_LIST) - 1 Step 1
-  ;  $PIPE_LIST[$i] = Null
-  ;Next
+  For $i = 0 To UBound($PIPE_LIST) - 1 Step 1
+    $PIPE_LIST[$i] = Null
+  Next
   Local $pipeInitData = HashMap_init(25)
   HashMap_putFieldRaw($pipeInitData, "rowHeight", $rowHeight)
   HashMap_putFieldRaw($pipeInitData, "padding", $padding)
   HashMap_putFieldRaw($pipeInitData, "maxWidth", $MAX_WIDTH)
   HashMap_putFieldRaw($pipeInitData, "maxHeight", $MAX_HEIGHT)
 
-  HashMap_putFieldRaw($pipeInitData, "offsetX", $MAX_WIDTH * 0)
-  HashMap_putFieldRaw($pipeInitData, "isLast", false)
-  ;addPipe($pipeInitData) ; Create pipe 1
-  $PIPE_LIST[0] = Pipe_initPipe($pipeInitData)
-
-  HashMap_putFieldRaw($pipeInitData, "offsetX", $MAX_WIDTH * 1)
-  HashMap_putFieldRaw($pipeInitData, "isLast", true)
-  ;addPipe($pipeInitData) ; Create pipe 2
-  $PIPE_LIST[1] = Pipe_initPipe($pipeInitData)
+  addPipe($pipeInitData) ; Create pipe 1
+  addPipe($pipeInitData) ; Create pipe 2
+  addPipe($pipeInitData) ; Create pipe 3
 
   ; Display the GUI.
   GUISetState(@SW_SHOW, $hGUI)
@@ -91,15 +102,7 @@ Func createGui()
     EndIf
 
     Local $delta = TimerDiff($begin)
-    For $i = 0 To UBound($PIPE_LIST) - 1 Step 1
-      PipeEvent_onWindowNameChange($PIPE_LIST[$i], $guiMessage)
-      PipeEvent_onConfigurationChange($PIPE_LIST[$i], $guiMessage)
-      PipeEvent_onStatusChange($PIPE_LIST[$i], $guiMessage)
-      PipeEvent_onRefreshWindowList($PIPE_LIST[$i])
-      If $delta > 500 Then
-        PipeEvent_onActionSchedule($PIPE_LIST[$i])
-      EndIf
-    Next
+    processPipeEvents($guiMessage, $delta)
 
     If $delta > 500 Then
       $begin = TimerInit()
