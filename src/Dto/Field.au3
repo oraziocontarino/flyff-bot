@@ -1,28 +1,60 @@
-#include <WinAPISysWin.au3>
-#include <WindowsConstants.au3>
-#include <GUIConstantsEx.au3>
+Global $TYPE_NUMBER = "NUMBER"
+Global $TYPE_STRING = "STRING"
+Global $TYPE_BOOLEAN = "BOOLEAN"
+Global $TYPE_MAP = "MAP"
+Global $TYPE_ARRAY = "ARRAY"
+Global $TYPE_GUI = "GUI"
+Global $TYPE_HWND = "HWND"
+Global $TYPE_BINDING_ROW = "BINDING_ROW"
 
-Func Field_init($fieldName, $fieldValue)
-  Local $field[2] ;name - value
+Func Field_init($fieldName, $fieldValue, $type)
+  Local $field[3] ;name - value - type
   $field[0] = $fieldName
   $field[1] = $fieldValue
+  $field[2] = $type
   return $field
 EndFunc
 
 Func Field_getName(ByRef $field)
-  return $field[0]
+  if $field = Null Then
+    println("- Field_getName over Null field. Cannot get name")
+    return Null
+  Else
+    return $field[0]
+  EndIf
 EndFunc
 
 Func Field_getValue(ByRef $field)
-  return $field[1]
+  if $field = Null Then
+    println("- Field_getValue over Null field. Cannot get value")
+    return Null
+  Else
+    return $field[1]
+  EndIf
 EndFunc
 
-Func Field_setValue(ByRef $field, $newValue)
+Func Field_getType(ByRef $field)
+  if $field = Null Then
+    println("- Field_getType over Null field. Cannot get type")
+    return Null
+  Else
+    return $field[2]
+  EndIf
+EndFunc
+
+Func Field_setValue(ByRef $field, $newValue, $type)
+  if $field = Null Then
+    println("- Field_setValue over Null field. Cannot set value=" & $newValue & ", type=" & $type)
+    return
+  EndIf
   $field[1] = $newValue
+  $field[2] = $type
 EndFunc
 
-; Local $field = Field_init("test", 123)
-; Local $name = Field_getName($field)
-; Local $value = Field_getValue($field)
-; ConsoleWrite("@@@ Field name: " & $name & @CRLF)
-; ConsoleWrite("@@@ Field value: " & $value & @CRLF)
+Func Field_toString(ByRef $field)
+  If $field = Null Then
+    return "null_field"
+  Else
+    return "{name: '"& $field[0] &"', value: '"& $field[1] &"', type: '"& $field[2] &"'}"
+  EndIf
+EndFunc

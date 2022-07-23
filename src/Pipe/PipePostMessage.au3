@@ -46,7 +46,7 @@ Func PipePostMessage_sendKeyDown(ByRef $pipe, $keyData)
   Local $windowName = HashMap_getFieldValue($pipe, "windowName")
   For $i = 1 To $keyData[0] Step 1
     Local $keyCode = $keyData[$i]
-    ;ConsoleWrite("Sending KEYDOWN " & $keyCode & @CRLF)
+    ;println("Sending KEYDOWN " & $keyCode)
     _WinAPI_PostMessage($hwnd, $WM_KEYDOWN, $keyCode, 0)
   Next
 EndFunc
@@ -55,7 +55,7 @@ Func PipePostMessage_sendKeyUp(ByRef $pipe, $keyData)
   Local $hwnd = HashMap_getFieldValue($pipe, "hwnd")
   For $i = 1 To $keyData[0] Step 1
     Local $keyCode = $keyData[$i]
-    ;ConsoleWrite("Sending KEYUP " & $keyCode & @CRLF)
+    ;println("Sending KEYUP " & $keyCode)
     _WinAPI_PostMessage($hwnd, $WM_KEYUP, $keyCode, 0)
   Next
 EndFunc

@@ -12,54 +12,58 @@ Local $keyAltPrefix = "Alt + "
 Local $keyCtrlPrefix = "Ctrl + "
 
 
-Func Pipe_initPipe($pipeInitData)
-  Local $pipe = HashMap_init(25)
+Func Pipe_initPipe($pipeInitData, $i)
+  Local $pipe = HashMap_init(50)
   Local $rowHeight = HashMap_getFieldValue($pipeInitData, "rowHeight")
   Local $padding = HashMap_getFieldValue($pipeInitData, "padding")
   Local $maxWidth = HashMap_getFieldValue($pipeInitData, "maxWidth")
   Local $maxHeight = HashMap_getFieldValue($pipeInitData, "maxHeight")
   Local $offsetX = HashMap_getFieldValue($pipeInitData, "offsetX")
 
-  local $maxConfigurations = HashMap_putFieldRaw($pipe, "maxConfigurations", 10)
+  local $maxConfigurations = HashMap_putFieldRaw($pipe, "maxConfigurations", 10, $TYPE_NUMBER)
   local $configurations[$maxConfigurations[1]]
 
-  HashMap_putFieldRaw($pipe, "configurations", $configurations)
+  HashMap_putFieldRaw($pipe, "id", $i, $TYPE_NUMBER)
 
-  HashMap_putFieldRaw($pipe, "keyDownTime", 1000)
+  HashMap_putFieldRaw($pipe, "configurations", $configurations, $TYPE_MAP)
 
-  HashMap_putFieldRaw($pipe, "rowHeight", $rowHeight)
+  HashMap_putFieldRaw($pipe, "keyDownTime", 1000, $TYPE_NUMBER)
 
-  HashMap_putFieldRaw($pipe, "padding", $padding)
+  HashMap_putFieldRaw($pipe, "rowHeight", $rowHeight, $TYPE_NUMBER)
 
-  HashMap_putFieldRaw($pipe, "maxWidth", $maxWidth)
+  HashMap_putFieldRaw($pipe, "padding", $padding, $TYPE_NUMBER)
 
-  HashMap_putFieldRaw($pipe, "maxHeight", $maxHeight)
+  HashMap_putFieldRaw($pipe, "maxWidth", $maxWidth, $TYPE_NUMBER)
 
-  HashMap_putFieldRaw($pipe, "offsetX", $offsetX)
+  HashMap_putFieldRaw($pipe, "maxHeight", $maxHeight, $TYPE_NUMBER)
 
-  HashMap_putFieldRaw($pipe, "paddingSm", 2)
+  HashMap_putFieldRaw($pipe, "offsetX", $offsetX, $TYPE_NUMBER)
 
-  HashMap_putFieldRaw($pipe, "windowName", Null)
+  HashMap_putFieldRaw($pipe, "paddingSm", 2, $TYPE_NUMBER)
 
-  HashMap_putFieldRaw($pipe, "labelIdle", Null)
+  HashMap_putFieldRaw($pipe, "windowName", Null, $TYPE_STRING)
 
-  HashMap_putFieldRaw($pipe, "labelPaused", Null)
+  HashMap_putFieldRaw($pipe, "labelIdle", Null, $TYPE_GUI)
 
-  HashMap_putFieldRaw($pipe, "labelRunning", Null)
+  HashMap_putFieldRaw($pipe, "labelPaused", Null, $TYPE_GUI)
 
-  HashMap_putFieldRaw($pipe, "activeActionsCounter", 0)
+  HashMap_putFieldRaw($pipe, "labelRunning", Null, $TYPE_GUI)
 
-  HashMap_putFieldRaw($pipe, "lastStatus", "IDLE_NO_ACTIONS")
+  HashMap_putFieldRaw($pipe, "activeActionsCounter", 0, $TYPE_NUMBER)
 
-  HashMap_putFieldRaw($pipe, "forcePaused", false)
+  HashMap_putFieldRaw($pipe, "lastStatus", "IDLE_NO_ACTIONS", $TYPE_STRING)
 
-  HashMap_putFieldRaw($pipe, "windowNameInput", Null)
+  HashMap_putFieldRaw($pipe, "forcePaused", false, $TYPE_BOOLEAN)
 
-  HashMap_putFieldRaw($pipe, "windowNameRegex", ".*Flyff.*")
+  HashMap_putFieldRaw($pipe, "windowNameInput", Null, $TYPE_GUI)
 
-  HashMap_putFieldRaw($pipe, "pipeSeparator", Null)
+  HashMap_putFieldRaw($pipe, "windowNameRegex", ".*Flyff.*", $TYPE_STRING)
 
-  HashMap_putFieldRaw($pipe, "hwnd", Null)
+  HashMap_putFieldRaw($pipe, "pipeSeparator", Null, $TYPE_GUI)
+
+  HashMap_putFieldRaw($pipe, "removeEvent", false, $TYPE_BOOLEAN)
+
+  HashMap_putFieldRaw($pipe, "hwnd", Null, $TYPE_HWND)
 
   initGuiElements($pipe)
 
@@ -76,8 +80,8 @@ Func Pipe_refreshWindowList(ByRef $pipe)
   If $windowComboItems[1] = $oldComboItems Then
     return ; Nothing changed, do not update combobox
   EndIf
-  ConsoleWrite("Update list: {new: '" & $windowComboItems[1] & "', old:'" & $oldComboItems & "'}" & @CRLF)
-  HashMap_putFieldRaw($pipe, "windowComboItems", $windowComboItems[1])
+  println("Update list: {new: '" & $windowComboItems[1] & "', old:'" & $oldComboItems & "'}")
+  HashMap_putFieldRaw($pipe, "windowComboItems", $windowComboItems[1], $TYPE_STRING)
   GUICtrlSetData($windowNameInput, $windowComboItems[1], $windowName)
 EndFunc
 
@@ -128,6 +132,8 @@ Func updateXPosNextRow(ByRef $pipe, ByRef $xPos, ByRef $yPos, $offsetX)
 EndFunc
 
 Func addBindingRow(ByRef $pipe, $rowIndex, $offsetX)
+  Local $bindingRow = HashMap_init(5)
+
   Local $paddingSm = HashMap_getFieldValue($pipe, "paddingSm")
   Local $padding = HashMap_getFieldValue($pipe, "padding")
 
@@ -140,30 +146,29 @@ Func addBindingRow(ByRef $pipe, $rowIndex, $offsetX)
 
   ; Key list - Label
   $width = 18
-  Local $keyLabel = GUICtrlCreateLabel("Key:", $xPos, $yPos, $width)
+  Local $keyLabel = Gui_createLabel($bindingRow, "bindingRow_keyLabel_" & $rowIndex, "Key:", $xPos, $yPos, $width)
   $xPos = $xPos + $width + $paddingSm
 
   ; Key list - Combo
   $width=75
   Local $keys = generateKeyLabelsForCombo()
   Local $defaultKey = $keyPrefix & $rowIndex
-  Local $combo = GUICtrlCreateCombo($defaultKey, $xPos, $yPos, $width)
-  GUICtrlSetData($combo, $keys, $defaultKey)
+  Local $combo = Gui_createCombo($bindingRow, "bindingRow_combo_" & $rowIndex, $defaultKey, $xPos, $yPos, $width, $keys)
   $xPos = $xPos + $width + $padding
 
   ; Delay - Label
   $width = 45
-  Local $delayLabel = GUICtrlCreateLabel("Delay (s):", $xPos, $yPos, $width)
+  Local $delayLabel = Gui_createLabel($bindingRow, "bindingRow_delayLabel_" & $rowIndex, "Delay (s):", $xPos, $yPos, $width)
   $xPos = $xPos + $width + $paddingSm
 
   ; Delay - Input
   Local $width = 25
-  Local $delayInput = GUICtrlCreateInput("1", $xPos, $yPos, $width)
+  Local $delayInput = Gui_createInput($bindingRow, "bindingRow_delayInput_" & $rowIndex, "1", $xPos, $yPos, $width)
   $xPos = $xPos + $width + $padding
 
   ; Enabled - Checkbox
   $width = 50
-  Local $enabled = GUICtrlCreateCheckbox("Active", $xPos, $yPos, $width)
+  Local $enabled = Gui_createCheckbox($bindingRow, "bindingRow_enabledInput_" & $rowIndex, "Active", $xPos, $yPos, $width)
   $xPos = $xPos + $width + $padding
 
   ; Prepare new configuration item
@@ -178,7 +183,8 @@ Func addBindingRow(ByRef $pipe, $rowIndex, $offsetX)
 
   Local $configurations = HashMap_getFieldValue($pipe, "configurations")
   $configurations[$rowIndex] = $out
-  HashMap_putFieldRaw($pipe, "configurations", $configurations)
+  HashMap_putFieldRaw($pipe, "configurations", $configurations, $TYPE_ARRAY)
+  HashMap_putFieldRaw($pipe, "bindingRow_" & $rowIndex, $bindingRow, $TYPE_BINDING_ROW)
 EndFunc
 
 Func initGuiElements(ByRef $pipe)
@@ -192,24 +198,22 @@ Func initGuiElements(ByRef $pipe)
   Local $windowNameRegex = HashMap_getFieldValue($pipe, "windowNameRegex")
   Local $maxWidth = HashMap_getFieldValue($pipe, "maxWidth")
   Local $maxConfigurations = HashMap_getFieldValue($pipe, "maxConfigurations")
-  Local $nextRowId = HashMap_putFieldRaw($pipe, "nextRowId", 0)
+  Local $nextRowId = HashMap_putFieldRaw($pipe, "nextRowId", 0, $TYPE_NUMBER)
   Local $width = 0
 
   ; Window Name - Label
   $width = 80
-  ConsoleWrite("WINDOW-SIZE --> windowNameLabel: " & $xPos+$width & "px " & @CRLF)
-  Local $windowNameLabel = GUICtrlCreateLabel("Window Name:", $xPos, $yPos, $width)
+  Gui_createLabel($pipe, "windowNameLabel", "Window Name:", $xPos, $yPos, $width)
   $xPos = $xPos + $width + $padding
 
   ; Window Name - Input
   $width = 200
   Local $windowComboItems = buildWindowListComboItems($windowNameRegex)
-  ConsoleWrite("WINDOW-SIZE --> windowNameLabel: " & $xPos+$width & "px " & @CRLF)
-  Local $windowNameInput = GUICtrlCreateCombo($windowComboItems[0], $xPos, $yPos, $width)
-  HashMap_putFieldRaw($pipe, "windowName", $windowComboItems[0])
-  HashMap_putFieldRaw($pipe, "windowNameInput", $windowNameInput)
-  HashMap_putFieldRaw($pipe, "windowComboItems", $windowComboItems[1])
-  GUICtrlSetData($windowNameInput, $windowComboItems[1], $windowName)
+  Local $defaultKey = $windowComboItems[0]
+  Local $keys = $windowComboItems[1]
+  Gui_createCombo($pipe, "windowNameInput", $defaultKey, $xPos, $yPos, $width, $keys)
+  HashMap_putFieldRaw($pipe, "windowName", $defaultKey, $TYPE_STRING)
+  HashMap_putFieldRaw($pipe, "windowComboItems", $keys, $TYPE_STRING)
   $xPos = $xPos + $width + $padding
 
   ; Increment row - increment height, reset width
@@ -222,13 +226,12 @@ Func initGuiElements(ByRef $pipe)
   $pipeStatus[1] = "PAUSED"
   $pipeStatus[2] = "RUNNING"
 
-  ConsoleWrite("WINDOW-SIZE --> shortcut_labels: " & $xPos+$width & "px " & @CRLF)
-  HashMap_putFieldRaw($pipe, "labelIdle", GUICtrlCreateLabel("Bot status: Idle - No active actions", $xPos, $yPos, $width))
-  HashMap_putFieldRaw($pipe, "labelPaused", GUICtrlCreateLabel("Bot status: Paused - (Alt+Shift+x)", $xPos, $yPos, $width))
-  HashMap_putFieldRaw($pipe, "labelRunning", GUICtrlCreateLabel("Bot status: Running... - (Alt+Shift+x)", $xPos, $yPos, $width))
-  HashMap_putFieldRaw($pipe, "activeActionsCounter", 0)
-  HashMap_putFieldRaw($pipe, "lastStatus", "IDLE_NO_ACTIONS")
-  HashMap_putFieldRaw($pipe, "forcePaused", false)
+  Gui_createLabel($pipe, "labelIdle", "Bot status: Idle - No active actions", $xPos, $yPos, $width)
+  Gui_createLabel($pipe, "labelPaused", "Bot status: Paused", $xPos, $yPos, $width)
+  Gui_createLabel($pipe, "labelRunning", "Bot status: Running...", $xPos, $yPos, $width)
+  HashMap_putFieldRaw($pipe, "activeActionsCounter", 0, $TYPE_NUMBER)
+  HashMap_putFieldRaw($pipe, "lastStatus", "IDLE_NO_ACTIONS", $TYPE_STRING)
+  HashMap_putFieldRaw($pipe, "forcePaused", false, $TYPE_BOOLEAN)
 
   GUICtrlSetState(HashMap_getFieldValue($pipe, "labelPaused"), $GUI_HIDE)
   GUICtrlSetState(HashMap_getFieldValue($pipe, "labelRunning"), $GUI_HIDE)
@@ -236,16 +239,18 @@ Func initGuiElements(ByRef $pipe)
   ; Increment row - increment height, reset width
   updateXPosNextRow($pipe, $xPos, $yPos, $offsetX)
 
-  ; HotKey 1 Info
-  ConsoleWrite("WINDOW-SIZE --> Toggle_Pause: " & $xPos+$width & "px " & @CRLF)
-  GUICtrlCreateLabel("Toggle Pause: Shift+Alt+X", $xPos, $yPos, $width)
+
+  ; HotKeys Info - Part 1
+  Gui_createLabel($pipe, "togglePauseTip", "Toggle Pause: Shift + Alt + X", $xPos, $yPos, $width*0.5)
+  Gui_createGraphic($pipe, "hotkeyInfoSeparator", $xPos + ($width*0.5)+8, $yPos-2, 2, 50, 0x000000)
+  Gui_createLabel($pipe, "addPipe", "Add Pipe: Alt + A", $xPos + ($width*0.5)+16, $yPos, 120)
 
   ; Increment row - increment height, reset width
   updateXPosNextRow($pipe, $xPos, $yPos, $offsetX)
 
-  ; HotKey 1 Info
-  ConsoleWrite("WINDOW-SIZE --> ActionSlot: " & $xPos+$width & "px " & @CRLF)
-  GUICtrlCreateLabel("Use ActionSlot: Shift+Alt+C", $xPos, $yPos, $width)
+  ; HotKeys Info - Part 2
+  Gui_createLabel($pipe, "toggleActionSlotTip", "Use ActionSlot: Shift + Alt + C", $xPos, $yPos, $width*0.5)
+  Gui_createLabel($pipe, "removePipe", "Remove Pipe: Alt + D", $xPos + ($width*0.5)+16, $yPos, 120)
 
   For $i = 0 To ($maxConfigurations - 1) Step 1
     addBindingRow($pipe, $i, $offsetX)
@@ -268,41 +273,50 @@ Func Pipe_addPipeSeparator(ByRef $pipe)
   Local $y = 8
   Local $width = 2
   Local $height = $maxHeight-8
-  ConsoleWrite("Rect: {x: '" & $x & "', y: '" & $y & "', width: '" & $width & "', height: '" & $height & "'}" & @CRLF)
-  Local $pipeSeparator = GUICtrlCreateGraphic($x, $y, $width, $height)
-  GUICtrlSetBkColor(-1, 0x000000)
-  HashMap_putFieldRaw($pipe, "pipeSeparator", $pipeSeparator)
+  Gui_createGraphic($pipe, "pipeSeparator", $x, $y, $width, $height, 0x000000)
+EndFunc
+
+Func Pipe_removePipeSeparator(ByRef $pipe)
+  GUICtrlDelete(HashMap_getFieldValue($pipe, "pipeSeparator"))
 EndFunc
 
 Func Pipe_remove(ByRef $pipe)
   For $i = 0 To UBound($pipe) - 1 Step 1
     Local $field = $pipe[$i]
-    If $field <> Null Then
-      ConsoleWrite("Removing pipe field:" & $field[0] & @CRLF)
+
+    If $field = Null Then
+      ContinueLoop
+    EndIf
+
+    Local $type = Field_getType($pipe[$i])
+    Local $name = Field_getName($pipe[$i])
+    Local $value = Field_getValue($pipe[$i])
+
+    If $type = $TYPE_GUI Then
+      ;println("- Remove GUI element:" & Field_toString($field))
+      GUICtrlDelete($value)
+      HashMap_putFieldRaw($pipe, $name, Null, $type)
+    ElseIf $type = $TYPE_BINDING_ROW Then
+      ;println("- Remove BINDING_ROW element:" & Field_toString($field))
+      For $j = 0 To UBound($value) - 1 Step 1
+        If Field_getType($value[$j]) = $TYPE_GUI Then
+          ;println("--- Remove BINDING_ROW_SUB element:" & Field_toString($value[$j]))
+          GUICtrlDelete(Field_getValue($value[$j]))
+        EndIF
+      Next
+    ElseIf $type = $TYPE_HWND Then
+      ;println("- Remove HWND element:" & Field_toString($field))
+      HashMap_putFieldRaw($pipe, $name, Null, $type)
+    ElseIf $name = "configurations" Then
+      ;println("- Remove binding rows:" & Field_toString($field))
+      GUICtrlDelete($value[0])
+      GUICtrlDelete($value[2])
+      GUICtrlDelete($value[4])
+      Local $maxConfigurations = HashMap_getFieldValue($pipe, "maxConfigurations")
+      Local $emptyConfig[$maxConfigurations]
+      HashMap_putFieldRaw($pipe, $name, $emptyConfig, $TYPE_ARRAY)
+    Else
+      ;println("Scanning element:" & Field_toString($field))
     EndIf
   Next
-;Removing pipe field:maxConfigurations
-;Removing pipe field:configurations
-;Removing pipe field:keyDownTime
-;Removing pipe field:rowHeight
-;Removing pipe field:padding
-;Removing pipe field:maxWidth
-;Removing pipe field:maxHeight
-;Removing pipe field:offsetX
-;Removing pipe field:paddingSm
-;Removing pipe field:windowName
-;Removing pipe field:labelIdle
-;Removing pipe field:labelPaused
-;Removing pipe field:labelRunning
-;Removing pipe field:activeActionsCounter
-;Removing pipe field:lastStatus
-;Removing pipe field:forcePaused
-;Removing pipe field:windowNameInput
-;Removing pipe field:windowNameRegex
-;Removing pipe field:pipeSeparator
-;Removing pipe field:hwnd
-;Removing pipe field:nextRowId
-;Removing pipe field:windowComboItems
-
-    ;Local $maxWidth = HashMap_getFieldValue($pipe, "maxWidth")
 EndFunc
