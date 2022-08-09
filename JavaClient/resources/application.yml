@@ -1,0 +1,49 @@
+server:
+  port: 0
+release:
+  title: Flyff Bot v0.4.0
+logging:
+  #file: logs/dev_app.log
+  pattern:
+    console: "%d %-5level %logger : %msg%n"
+    file: "%d %-5level [%thread] %logger : %msg%n"
+  level:
+    flyffbot: DEBUG
+    org.springframework.web: INFO
+    org.jnativehook: WARN
+disable-key-down-hook: false # Only for debug, to remove lag caused by hotkey hook in debug mode #
+pipe-config:
+  max: 3 # From 1 to 3 #
+  min: 1 # Not less then 1 pipe
+auto-save:
+  save-to-temp: true
+  save-to-path: # absolute/path/to/folder/if/save-to-temp/set/to/false
+  save-file-name: flyffbot-userconfig
+native-service:
+  get-window-list-args:
+    api:
+      name: api
+      value: get-window-list
+    window-search-key:
+      name: window-search-key
+      value: Flyff Universe
+  send-key-down-args:
+    api:
+      name: api
+      value: send-key-down
+    selected-hwnd-id:
+      name: selected-hwnd-id
+      value: # Dynamic value, read from UI combobox
+    keystroke-id:
+      name: keystroke-id
+      value: # Dynamic value, read from UI combobox
+  send-key-up-args:
+    api:
+      name: api
+      value: send-key-up
+    selected-hwnd-id:
+      name: selected-hwnd-id
+      value: # Dynamic value, read from UI combobox
+    keystroke-id:
+      name: keystroke-id
+      value: # Dynamic value, read from UI combobox
