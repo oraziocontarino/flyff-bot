@@ -46,6 +46,5 @@ public class Row3ScrollablePanel extends JScrollPane {
 
     public void updateScheduler(String cid, int value) {
         content.updateScheduler(cid, value);
-        setViewportView(content);
     }
 }
