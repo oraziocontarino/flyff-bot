@@ -1,12 +1,10 @@
 package flyffbot.gui.components.pipe.row4customactionslot;
 
 import flyffbot.configuration.DepInjComponentData;
-import flyffbot.dto.comboitem.FBComboStringDto;
 import flyffbot.gui.GuiConstants;
 import flyffbot.gui.components.EmptyItem;
 import flyffbot.gui.components.JFBPanel;
 import flyffbot.gui.listeners.PipeSettingsListener;
-import flyffbot.interfaces.UICallback;
 import lombok.val;
 
 import javax.swing.*;
@@ -30,7 +28,7 @@ public class Row4SettingsDialog extends JFBPanel {
 
         setPreferredSize(new Dimension(
                 GuiConstants.rowWidth - (GuiConstants.boxPadding*2),
-                (GuiConstants.rowHeightLg*7) + GuiConstants.boxPadding
+                (GuiConstants.rowHeightLg*6) + (GuiConstants.boxPadding*5) - 3
         ));
         val actionsSize = new Dimension(GuiConstants.customActionSlotActionWidth, GuiConstants.rowHeight75);
 

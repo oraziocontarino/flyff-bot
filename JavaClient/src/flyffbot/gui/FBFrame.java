@@ -1,13 +1,16 @@
 package flyffbot.gui;
 
+import flyffbot.Application;
 import flyffbot.configuration.DepInjComponentData;
 import flyffbot.exceptions.PipeConfigNotFound;
+import flyffbot.exceptions.SaveLoadException;
 import flyffbot.gui.components.GlobalHotKeysRow;
 import flyffbot.gui.components.JFBPanel;
 import flyffbot.gui.components.pipe.FBPipePanel;
 import flyffbot.services.KeyDownHookService;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
+import org.apache.tomcat.util.http.fileupload.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -15,6 +18,10 @@ import org.springframework.stereotype.Component;
 import javax.annotation.PostConstruct;
 import javax.swing.*;
 import java.awt.*;
+import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,6 +36,9 @@ public class FBFrame extends JFrame{
     @Value("${pipe-config.min}")
     private int minPipes;
 
+    @Value("${auto-save.folder-name}")
+    private String folderName;
+
     @Autowired
     private DepInjComponentData services;
 
@@ -37,9 +47,29 @@ public class FBFrame extends JFrame{
 
     @PostConstruct
     public void init(){
+        initNativeApi();
         initGui();
     }
 
+    private void initNativeApi(){
+        val absDirectories = Paths.get(folderName).toAbsolutePath().toString();
+
+        // Check / Create directories to cfg file
+        val directories = new File(absDirectories);
+        if(!directories.exists() && !directories.mkdirs()){
+            throw new SaveLoadException("Save - Unable to find/create directories to: "+directories.getAbsolutePath());
+        }
+
+        try(val inputStream = Application.class.getClassLoader().getResourceAsStream("main.exe")){
+            val tmp = Paths.get(folderName, "flyff-bot-native-api.exe").toAbsolutePath();
+            assert inputStream != null;
+            Files.copy(inputStream, tmp, StandardCopyOption.REPLACE_EXISTING);
+            IOUtils.closeQuietly(inputStream);
+            log.debug("Flyff bot native api copied to: {}", tmp.toAbsolutePath());
+        }catch (Exception e){
+            log.error("Error occurred while coping native api to temp folder", e);
+        }
+    }
 
     private void initGui(){
         setLayout(new FlowLayout(FlowLayout.LEFT, GuiConstants.padding, GuiConstants.padding));
@@ -55,7 +85,7 @@ public class FBFrame extends JFrame{
 
         val size = services.getUserConfigService().countPipes();
         for(var i = 0; i < size; i++){
-            addJFramePipe(i, false);
+            initializeNewPipe(i, false, false);
         }
 
         // Set JFrame style
@@ -72,14 +102,9 @@ public class FBFrame extends JFrame{
         pipePanel.togglePause();
     }
 
-    public void useActionSlot(String pipeId, List<String> keys) {
-        val pipePanel = findPipePanelById(pipeId);
-        pipePanel.useActionSlot(keys);
-    }
-
     public void addPipe() {
         if(uiPipePanels.size() < maxPipes){
-            addJFramePipe(uiPipePanels.size(), true);
+            initializeNewPipe(uiPipePanels.size(), true, true);
         }
     }
 
@@ -102,7 +127,7 @@ public class FBFrame extends JFrame{
                 .orElseThrow(()-> new PipeConfigNotFound("UI Pipe not found: "+pipeId));
     }
 
-    private void addJFramePipe(int nextPipeIndex, boolean doResize){
+    private void initializeNewPipe(int nextPipeIndex, boolean doResize, boolean initEvents){
         var cfg = services.getUserConfigService().createIfNotExistsPipe(nextPipeIndex);
         var pipe = new FBPipePanel(cfg.getId(), services);
 
@@ -116,6 +141,10 @@ public class FBFrame extends JFrame{
 
         // Resize JFrame (width)
         updateJFrameSize(doResize);
+
+        if(initEvents){
+            services.getKeyDownHookService().addKeyBinding(pipe.getPipeId(), nextPipeIndex);
+        }
     }
     private void updateJFrameSize(boolean doResize){
         if(doResize) {

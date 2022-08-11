@@ -64,6 +64,6 @@ public class WindowNameBox extends JFBPanel {
     }
 
     public String updateOptions(List<FBComboStringDto> options) {
-        return input.updateOptions(options).getValue();
+        return input.updateOptions(options, "No valid windows found").getValue();
     }
 }

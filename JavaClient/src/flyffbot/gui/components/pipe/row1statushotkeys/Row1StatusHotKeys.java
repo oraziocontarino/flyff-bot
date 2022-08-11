@@ -18,10 +18,9 @@ public class Row1StatusHotKeys extends JFBPanel {
         val layout = new FlowLayout(FlowLayout.LEFT, 0, 0);
         layout.setAlignOnBaseline(true);
         setLayout(layout);
-
         setPreferredSize(new Dimension(
                 GuiConstants.rowWidth - (GuiConstants.boxPadding*2),
-                (GuiConstants.rowHeight75*3) + GuiConstants.padding
+                (GuiConstants.rowHeight75*2) + (GuiConstants.boxPadding * 2)
         ));
 
         status = new BotStatusBox(pipeId, services);
@@ -30,9 +29,8 @@ public class Row1StatusHotKeys extends JFBPanel {
         hotkeys = new HotKeysBox(
                 pipeId,
                 "Pipe HotKeys",
-                "Toggle pause: Shift + " + ((index * 3) + 1),
-                "Use action slot: Shift + " + ((index * 3) + 2),
-                "Use custom action slot: Shift + " + ((index * 3) + 3)
+                "Toggle pause: Shift + " + ((index * 2) + 1),
+                "Use CAS: Shift + " + ((index * 2) + 2)
         );
         add(hotkeys);
         add(status);

@@ -31,7 +31,7 @@ public class Row4SettingsRowList extends JScrollPane {
         setViewportView(content);
         getViewport().setPreferredSize(new Dimension(
                 GuiConstants.rowWidth - (GuiConstants.boxPadding*4) - GuiConstants.scrollbarWidth,
-                (GuiConstants.rowHeight*7) - GuiConstants.boxPadding
+                (GuiConstants.rowHeight*6) - (GuiConstants.boxPadding * 2)
         ));
         setAutoscrolls(true);
         setHorizontalScrollBarPolicy(HORIZONTAL_SCROLLBAR_NEVER);

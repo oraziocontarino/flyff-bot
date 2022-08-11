@@ -22,7 +22,7 @@ public class BotStatusBox extends JFBPanel {
         setBorder(BorderFactory.createTitledBorder("Bot status"));
         setPreferredSize(new Dimension(
                 GuiConstants.rowWidth35 - GuiConstants.boxPadding,
-                GuiConstants.rowHeight75*3 + GuiConstants.padding
+                (GuiConstants.rowHeight75*2) + (GuiConstants.boxPadding * 2)
         ));
 
         val pipe = services.getUserConfigService().findPipeById(pipeId);

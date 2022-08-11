@@ -34,7 +34,11 @@ Pipe HotKeys:
 - Auto-detect Captcha (only click on box)
 - Randimize delays between actions to avoid RECAPTCHA popup
 
-## Build Native API for Windows (VS Code guide)
+## Build Native API for Windows (command line)
+- Install GCC MinGW64
+- Run build.bat inside NativeAPI/Windows folder
+
+## Build & Run/Debug Native API for Windows (VS Code guide)
 - Install GCC MinGW64
 - Create launch.json file inside .vscode folder
 - Pase following configuration:
@@ -94,9 +98,10 @@ Pipe HotKeys:
 At this point you should have a file named 'main.exe' in the same directory of main.cpp.
 This file is the one used by the java client to send "fetch-windows-list" and "send-key-stroke" commands to Flyff window
 
-## Build Java client
-- Generate native api executable and copy/paste it to JavaClient/resources
+## Build & Run Java client
+- Generate native api executable (main.exe)
+- Copy/paste it to JavaClient/resources (overwrite if needed)
 - Run Application.java
 ## Create Java executable jar
 - Via maven run: mvn clean package
-- Go to target folder and run JavaClient-x.y.z-SNAPSHOT to start using FlyffBot
+- Go to target folder and run JavaClient-Vx.y.z to start using FlyffBot

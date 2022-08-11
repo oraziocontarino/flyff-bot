@@ -2,30 +2,32 @@ package flyffbot.gui.components.pipe.row1statushotkeys;
 
 import flyffbot.gui.GuiConstants;
 import flyffbot.gui.components.JFBPanel;
+import lombok.extern.slf4j.Slf4j;
+import lombok.val;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.stream.Stream;
 
+@Slf4j
 public class HotKeysBox extends JFBPanel {
-    private String boxTitle;
-    private JLabel value0;
-    private JLabel value1;
-    private JLabel value2;
-
-    public HotKeysBox(String pipeId, String title, String value0, String value1, String value2) {
+    public HotKeysBox(String pipeId, String title, String value0, String value1) {
         super("", pipeId);
         setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
         setBorder(BorderFactory.createTitledBorder(title));
+        val boxWidth = GuiConstants.rowWidth65 - GuiConstants.boxPadding;
         setPreferredSize(new Dimension(
-                GuiConstants.rowWidth65 - GuiConstants.boxPadding,
-                GuiConstants.rowHeight75*3 + GuiConstants.padding
+                boxWidth,
+                (GuiConstants.rowHeight75*2) + (GuiConstants.boxPadding * 2)
         ));
 
-        this.value0 = new JLabel(value0);
-        this.value1 = new JLabel(value1);
-        this.value2 = new JLabel(value2);
-        add(this.value0);
-        add(this.value1);
-        add(this.value2);
+        Stream.of(value0, value1).forEach(value -> {
+            JLabel jElement = new JLabel(value);
+            jElement.setPreferredSize(new Dimension(
+                    boxWidth - (GuiConstants.boxPadding*2),
+                    GuiConstants.textHeight
+            ));
+            add(jElement);
+        });
     }
 }

@@ -46,24 +46,30 @@ public class JFBComboBoxString extends JComboBox<FBComboStringDto> {
         updateSelectedByValue(defaultSelectedValue);
     }
 
-    public FBComboStringDto updateOptions(List<FBComboStringDto> options){
+    public FBComboStringDto updateOptions(List<FBComboStringDto> newOptions, String defaultText){
         val oldSelected = this.options.get(this.getSelectedIndex());
-        this.removeAllItems();
-        this.options = options;
 
-        if(this.options.size() == 0) {
-            this.options.add(0, FBComboStringDto.builder().label("No element available").value("").build());
-        }
+        replaceOptionsList(newOptions, defaultText);
 
         val selectedIndex = updateSelectedByValue(oldSelected.getValue());
         return this.options.get(selectedIndex);
     }
 
+    private void replaceOptionsList(List<FBComboStringDto> newList, String defaultText){
+        this.removeAllItems();
+        this.options = newList;
+        if(options.isEmpty()) {
+            options.add(0, FBComboStringDto.builder().label(defaultText).value("").build());
+        }
+        for(int i = 0; i < options.size(); i++){
+            this.insertItemAt(options.get(i), i);
+        }
+    }
+
     private int updateSelectedByValue(String toSelect){
         int selectedIndex = 0;
-        for(int i = 0; i < this.options.size(); i++){
-            val item = this.options.get(i);
-            this.insertItemAt(item, i);
+        for(int i = 0; i < options.size(); i++){
+            val item = options.get(i);
             if(toSelect.equals(item.getValue())){
                 selectedIndex = i;
             }

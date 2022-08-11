@@ -8,7 +8,6 @@ import flyffbot.gui.GuiConstants;
 import flyffbot.gui.components.JFBPanel;
 import flyffbot.gui.components.pipe.row1statushotkeys.Row1StatusHotKeys;
 import flyffbot.gui.components.pipe.row2windownamebindings.Row2WindowNameBindings;
-import flyffbot.gui.components.pipe.row3bindingrows.Row3BindingRows;
 import flyffbot.gui.components.pipe.row3bindingrows.Row3ScrollablePanel;
 import flyffbot.gui.components.pipe.row4customactionslot.Row4CustomActionSlot;
 import flyffbot.gui.components.pipe.row4customactionslot.Row4SettingsDialog;
@@ -240,24 +239,6 @@ public class FBPipePanel extends JFBPanel {
     public void togglePause() {
         services.getUserConfigService().updateTogglePipe(pipeId);
         onConfigChange();
-    }
-
-    public void useActionSlot(List<String> keys) {
-        val hwnd = services.getUserConfigService().findWindowNameRowData(pipeId).getHwnd();
-        val task = new Runnable(){
-
-            @Override
-            public void run() {
-                try {
-                    services.getNativeSendKeyService().execute(KeyStatus.DOWN, hwnd, keys);
-                    Thread.sleep(500);
-                    services.getNativeSendKeyService().execute(KeyStatus.UP, hwnd, keys);
-                }catch (Exception e){
-                    log.error("Error occurred while processing action slot hotkey", e);
-                }
-            }
-        };
-        task.run();
     }
 
     public void useCustomActionSlot() {

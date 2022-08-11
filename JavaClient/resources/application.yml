@@ -16,9 +16,8 @@ pipe-config:
   max: 3 # From 1 to 3 #
   min: 1 # Not less then 1 pipe
 auto-save:
-  save-to-temp: true
-  save-to-path: # absolute/path/to/folder/if/save-to-temp/set/to/false
-  save-file-name: flyffbot-userconfig
+  folder-name: flyff-bot-cfg
+  file-name: flyffbot-userconfig
 native-service:
   get-window-list-args:
     api:
@@ -26,7 +25,7 @@ native-service:
       value: get-window-list
     window-search-key:
       name: window-search-key
-      value: Flyff Universe
+      value: Flyff
   send-key-down-args:
     api:
       name: api
