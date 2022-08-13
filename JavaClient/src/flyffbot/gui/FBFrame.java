@@ -7,6 +7,7 @@ import flyffbot.exceptions.SaveLoadException;
 import flyffbot.gui.components.GlobalHotKeysRow;
 import flyffbot.gui.components.JFBPanel;
 import flyffbot.gui.components.pipe.FBPipePanel;
+import flyffbot.gui.listeners.KeyDownHookListener;
 import flyffbot.services.KeyDownHookService;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
@@ -24,6 +25,7 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Slf4j
 @Component
@@ -45,8 +47,11 @@ public class FBFrame extends JFrame{
     private GlobalHotKeysRow globalHotKeysRow;
     private List<JFBPanel> uiPipePanels;
 
+    private KeyDownHookService keyDownHookService;
+
     @PostConstruct
     public void init(){
+        keyDownHookService = new KeyDownHookService(buildKeyDownEvents());
         initNativeApi();
         initGui();
     }
@@ -85,7 +90,7 @@ public class FBFrame extends JFrame{
 
         val size = services.getUserConfigService().countPipes();
         for(var i = 0; i < size; i++){
-            initializeNewPipe(i, false, false);
+            initializeNewPipe(i, false);
         }
 
         // Set JFrame style
@@ -96,38 +101,13 @@ public class FBFrame extends JFrame{
         setVisible(true);
     }
 
-
-    public void togglePause(String pipeId) {
-        val pipePanel = findPipePanelById(pipeId);
-        pipePanel.togglePause();
-    }
-
-    public void addPipe() {
-        if(uiPipePanels.size() < maxPipes){
-            initializeNewPipe(uiPipePanels.size(), true, true);
-        }
-    }
-
-    public void removePipe() {
-        if(uiPipePanels.size() == minPipes){
-            return;
-        }
-        val index = services.getUserConfigService().countPipes() - 1;
-        val removedPipeId = services.getUserConfigService().removeLastPipe();
-        val pipeToRemove = uiPipePanels.get(index);
-        remove(pipeToRemove);
-        uiPipePanels.remove(index);
-        services.getKeyDownHookService().removeKeyBinding(removedPipeId);
-        updateJFrameSize(true);
-    }
-
     private FBPipePanel findPipePanelById(String pipeId){
         return (FBPipePanel) uiPipePanels.stream().filter(pipe -> pipe.getPipeId().equals(pipeId))
                 .findFirst()
                 .orElseThrow(()-> new PipeConfigNotFound("UI Pipe not found: "+pipeId));
     }
 
-    private void initializeNewPipe(int nextPipeIndex, boolean doResize, boolean initEvents){
+    private void initializeNewPipe(int nextPipeIndex, boolean doResize){
         var cfg = services.getUserConfigService().createIfNotExistsPipe(nextPipeIndex);
         var pipe = new FBPipePanel(cfg.getId(), services);
 
@@ -142,9 +122,7 @@ public class FBFrame extends JFrame{
         // Resize JFrame (width)
         updateJFrameSize(doResize);
 
-        if(initEvents){
-            services.getKeyDownHookService().addKeyBinding(pipe.getPipeId(), nextPipeIndex);
-        }
+        keyDownHookService.addKeyBinding(pipe.getPipeId(), nextPipeIndex);
     }
     private void updateJFrameSize(boolean doResize){
         if(doResize) {
@@ -156,18 +134,40 @@ public class FBFrame extends JFrame{
         }
     }
 
-    public void initHooks(KeyDownHookService keyDownHookService) {
-        services.setKeyDownHookService(keyDownHookService);
-        val list = services.getUserConfigService().getPipeList();
-        for(var i = 0; i < list.size(); i++){
-            val item = list.get(i);
-            // Add HotKeys
-            services.getKeyDownHookService().addKeyBinding(item.getId(), i);
-        }
-    }
+    private KeyDownHookListener buildKeyDownEvents() {
+        return new KeyDownHookListener() {
+            @Override
+            public void onAddPipe() {
+                if(uiPipePanels.size() < maxPipes){
+                    initializeNewPipe(uiPipePanels.size(), true);
+                }
+            }
 
-    public void useCustomActionSlot(String pipeId) {
-        val pipePanel = findPipePanelById(pipeId);
-        pipePanel.useCustomActionSlot();
+            @Override
+            public Optional<String> onRemovePipe() {
+                if(uiPipePanels.size() == minPipes){
+                    return Optional.empty();
+                }
+                val index = services.getUserConfigService().countPipes() - 1;
+                val removedPipeId = services.getUserConfigService().removeLastPipe();
+                val pipeToRemove = uiPipePanels.get(index);
+                remove(pipeToRemove);
+                uiPipePanels.remove(index);
+                updateJFrameSize(true);
+                return Optional.of(removedPipeId);
+            }
+
+            @Override
+            public void onTogglePause(String pipeId) {
+                val pipePanel = findPipePanelById(pipeId);
+                pipePanel.togglePause();
+            }
+
+            @Override
+            public void onCustomActionSlot(String pipeId) {
+                val pipePanel = findPipePanelById(pipeId);
+                pipePanel.useCustomActionSlot();
+            }
+        };
     }
 }

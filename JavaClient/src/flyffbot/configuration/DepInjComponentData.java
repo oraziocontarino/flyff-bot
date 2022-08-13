@@ -1,6 +1,5 @@
 package flyffbot.configuration;
 
-import flyffbot.services.KeyDownHookService;
 import flyffbot.services.SaveLoadService;
 import flyffbot.services.UserConfigService;
 import flyffbot.services.nativeservices.NativeGetWindowListService;
@@ -8,7 +7,6 @@ import flyffbot.services.nativeservices.NativeSendKeyService;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 
@@ -33,8 +31,4 @@ public class DepInjComponentData {
 
     @Autowired
     private ScheduledExecutorService scheduler;
-
-    // Manually injected
-    @Setter
-    private KeyDownHookService keyDownHookService;
 }

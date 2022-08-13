@@ -3,7 +3,7 @@ package flyffbot.services;
 import flyffbot.dto.HotKeyDto;
 import flyffbot.enums.EventEnum;
 import flyffbot.enums.KeyStatus;
-import flyffbot.gui.FBFrame;
+import flyffbot.gui.listeners.KeyDownHookListener;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.apache.commons.lang3.StringUtils;
@@ -12,32 +12,22 @@ import org.jnativehook.NativeHookException;
 import org.jnativehook.SwingDispatchService;
 import org.jnativehook.keyboard.NativeKeyEvent;
 import org.jnativehook.keyboard.NativeKeyListener;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
 
-import javax.annotation.PostConstruct;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 @Slf4j
-@Component
 public class KeyDownHookService implements NativeKeyListener {
-	@Autowired
-	private FBFrame fbFrame;
-
-	@Autowired
-	private UserConfigService userConfigService;
-
-	@Value("${disable-key-down-hook}")
-	private boolean isDisabled;
 
 	private Map<Integer, KeyStatus> keyCodeStatusMap;
 	private AtomicReference<List<HotKeyDto>> hotKeys;
 
-	@PostConstruct
-	public void init(){
+	private final KeyDownHookListener events;
+
+	public KeyDownHookService(KeyDownHookListener events){
+		this.events = events;
+		boolean isDisabled = false;
 		if(isDisabled){
 			return;
 		}
@@ -67,8 +57,6 @@ public class KeyDownHookService implements NativeKeyListener {
 		}
 
 		GlobalScreen.addNativeKeyListener(this);
-
-		fbFrame.initHooks(this);
 	}
 
 	private void initializeKeyUpMap() {
@@ -134,7 +122,7 @@ public class KeyDownHookService implements NativeKeyListener {
 		log.debug("addKeyBinding - {} - Registered USE_CUSTOM_ACTION_SLOT: SHIFT + {}", pipeId, (2+(pipeIndex*2)));
 	}
 
-	public void removeKeyBinding(String pipeId){
+	private void removeKeyBinding(String pipeId){
 		hotKeys.getAndUpdate(list -> {
 			val cpy = new ArrayList<>(list);
 			return cpy.stream()
@@ -157,16 +145,16 @@ public class KeyDownHookService implements NativeKeyListener {
 				log.debug("Running: {}", item.getEvent());
 				switch (item.getEvent()) {
 					case ADD_PIPE:
-						fbFrame.addPipe();
+						events.onAddPipe();
 						break;
 					case REMOVE_PIPE:
-						fbFrame.removePipe();
+						events.onRemovePipe().ifPresent(this::removeKeyBinding);
 						break;
 					case TOGGLE_PAUSE:
-						fbFrame.togglePause(item.getPipeId());
+						events.onTogglePause(item.getPipeId());
 						break;
 					case USE_CUSTOM_ACTION_SLOT:
-						fbFrame.useCustomActionSlot(item.getPipeId());
+						events.onCustomActionSlot(item.getPipeId());
 						break;
 					default:
 						log.error("Unexpected action found: {}", item.getEvent());
