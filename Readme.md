@@ -5,10 +5,11 @@ It requires Java SE 11 (or newer) to be installed in OS, it can be downloaded fr
 https://www.oracle.com/it/java/technologies/javase/jdk11-archive-downloads.html
 Features:
 - Auto key press: Ctrl + {0 to 9}, Alt + {0 - 9}, {0 to 9} keys
+- Custom Action Slot (CAS): Configure a list of key (and cast time) of skills to execute sequentially
 - Multi client: can handle up to 3 client simultaneously
 - Auto save configuration: bot configuration is stored locally, opening again will re-set last configuration
-- Global Hotkeys
-- Pipe Hotkeys
+- Global Hotkeys: Easy and fast way to add/remove new window handlers (bot per specific flyff window)
+- Pipe Hotkeys: Easy and fast way to activate bot features in given pipe
 
 Tested on x32 and x64 Chrome and Mozilla Firefox
 - Chrome: requires window to be active to process key events
@@ -20,14 +21,11 @@ Global HotKeys:
 
 Pipe HotKeys:
 - {Shift + 1}: Pause/Resume pause all action handled by pipe 1
-- {Shift + 2}: Use flyff action slot in window handled by pipe 1
-- {Shift + 3}: Use custom action slot in window handled by pipe 1
-- {Shift + 4}: Pause/Resume pause all action handled by pipe 2
-- {Shift + 5}: Use flyff action slot in window handled by pipe 2
-- {Shift + 6}: Use custom action slot in window handled by pipe 2
-- {Shift + 7}: Pause/Resume pause all action handled by pipe 3
-- {Shift + 8}: Use flyff action slot in window handled by pipe 3
-- {Shift + 9}: Use custom action slot in window handled by pipe 3
+- {Shift + 2}: Use Custom Action Slot (CAS) in window handled by pipe 1
+- {Shift + 3}: Pause/Resume pause all action handled by pipe 2
+- {Shift + 4}: Use Custom Action Slot (CAS) in window handled by pipe 2
+- {Shift + 5}: Pause/Resume pause all action handled by pipe 3
+- {Shift + 6}: Use Custom Action Slot (CAS) in window handled by pipe 3
 
 ## Planned features:
 - Auto-refresh follow
