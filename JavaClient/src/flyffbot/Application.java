@@ -3,6 +3,7 @@ package flyffbot;
 
 import com.formdev.flatlaf.FlatLightLaf;
 import flyffbot.gui.FBFrame;
+import flyffbot.gui.FBLoadingFrame;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -18,12 +19,14 @@ import java.util.concurrent.ScheduledExecutorService;
 @ComponentScan(basePackages = "flyffbot")
 @Slf4j
 public class Application {
+    public static FBLoadingFrame loadingFrame;
 
     @Autowired
     private static FBFrame fbFrame;
 
     public static void main(String[] args) {
         try {
+            loadingFrame = new FBLoadingFrame();
             UIManager.setLookAndFeel(new FlatLightLaf());
         }catch (Exception e){
             log.debug("Error while setting material theme: ", e);

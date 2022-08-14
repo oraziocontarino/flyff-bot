@@ -19,6 +19,7 @@ import org.springframework.stereotype.Component;
 import javax.annotation.PostConstruct;
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.WindowEvent;
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -54,6 +55,7 @@ public class FBFrame extends JFrame{
         keyDownHookService = new KeyDownHookService(buildKeyDownEvents());
         initNativeApi();
         initGui();
+        Application.loadingFrame.dispatchEvent(new WindowEvent(Application.loadingFrame, WindowEvent.WINDOW_CLOSING));
     }
 
     private void initNativeApi(){
@@ -98,6 +100,7 @@ public class FBFrame extends JFrame{
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         //TODO: on shutdown remove all scheduler invoking scheduler.shutdown();
+        setResizable(false);
         setVisible(true);
     }
 

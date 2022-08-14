@@ -13,10 +13,6 @@ import java.awt.*;
 @Slf4j
 public class GlobalHotKeysRow extends JFBPanel {
     private final DepInjComponentData services;
-    private JLabel leftLabel;
-    private JLabel leftValue;
-    private JLabel rightLabel;
-    private JLabel rightValue;
 
     private final JPanel contentWrapper;
 
@@ -28,7 +24,7 @@ public class GlobalHotKeysRow extends JFBPanel {
         contentWrapper.setBorder(BorderFactory.createTitledBorder("Global HotKeys"));
 
         contentWrapper.add(new JLabel("Add pipe: Alt + A"));
-        contentWrapper.add(new JLabel("Add pipe: Alt + D"));
+        contentWrapper.add(new JLabel("Remove pipe: Alt + D"));
 
         contentWrapper.setPreferredSize(new Dimension(GuiConstants.rowWidth, GuiConstants.rowHeightLg));
         updateSize();
