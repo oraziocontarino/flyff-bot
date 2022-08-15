@@ -5,6 +5,7 @@ import flyffbot.configuration.DepInjComponentData;
 import flyffbot.exceptions.PipeConfigNotFound;
 import flyffbot.exceptions.SaveLoadException;
 import flyffbot.gui.components.GlobalHotKeysRow;
+import flyffbot.gui.components.JFBGif;
 import flyffbot.gui.components.JFBPanel;
 import flyffbot.gui.components.pipe.FBPipePanel;
 import flyffbot.gui.listeners.KeyDownHookListener;
@@ -12,14 +13,9 @@ import flyffbot.services.KeyDownHookService;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.apache.tomcat.util.http.fileupload.IOUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
 
-import javax.annotation.PostConstruct;
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.WindowEvent;
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -29,33 +25,49 @@ import java.util.List;
 import java.util.Optional;
 
 @Slf4j
-@Component
 public class FBFrame extends JFrame{
-    @Value("${release.title}")
     private String title;
-    @Value("${pipe-config.max}")
-    private int maxPipes;
-
-    @Value("${pipe-config.min}")
     private int minPipes;
-
-    @Value("${auto-save.folder-name}")
+    private int maxPipes;
     private String folderName;
-
-    @Autowired
     private DepInjComponentData services;
-
     private GlobalHotKeysRow globalHotKeysRow;
     private List<JFBPanel> uiPipePanels;
-
     private KeyDownHookService keyDownHookService;
+    private final JFBGif loader;
 
-    @PostConstruct
-    public void init(){
+    public FBFrame(){
+        loader = new JFBGif("/assets/loader.gif", buildLoadingFrameSize());
+        //TODO: on shutdown remove all scheduler invoking scheduler.shutdown();
+        setResizable(false);
+        setVisible(true);
+    }
+
+    public void showLoader(){
+        setLayout(new BoxLayout(getContentPane(), BoxLayout.Y_AXIS));
+        add(loader, BorderLayout.CENTER);
+        setSize(buildLoadingFrameSize());
+    }
+
+    public void initFrame(String title, int minPipes, int maxPipes,  String folderName, DepInjComponentData services){
+        this.title = title;
+        this.maxPipes = maxPipes;
+        this.minPipes = minPipes;
+        this.folderName = folderName;
+        this.services = services;
+
         keyDownHookService = new KeyDownHookService(buildKeyDownEvents());
         initNativeApi();
         initGui();
-        Application.loadingFrame.dispatchEvent(new WindowEvent(Application.loadingFrame, WindowEvent.WINDOW_CLOSING));
+        remove(loader);
+        revalidate();
+    }
+
+    private Dimension buildLoadingFrameSize(){
+        return new Dimension(
+                (GuiConstants.padding * 5) + (GuiConstants.rowWidth + GuiConstants.padding),
+                GuiConstants.frameHeight
+        );
     }
 
     private void initNativeApi(){
@@ -98,10 +110,6 @@ public class FBFrame extends JFrame{
         // Set JFrame style
         updateJFrameSize(true);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-
-        //TODO: on shutdown remove all scheduler invoking scheduler.shutdown();
-        setResizable(false);
-        setVisible(true);
     }
 
     private FBPipePanel findPipePanelById(String pipeId){

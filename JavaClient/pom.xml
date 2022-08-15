@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>JavaClient</groupId>
 	<artifactId>JavaClient</artifactId>
-	<version>V0.4.3</version>
+	<version>V0.4.4</version>
 
 	<parent>
 		<groupId>org.springframework.boot</groupId>
@@ -57,6 +57,12 @@
 			<groupId>org.mapstruct</groupId>
 			<artifactId>mapstruct</artifactId>
 			<version>1.5.2.Final</version>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/commons-io/commons-io -->
+		<dependency>
+			<groupId>commons-io</groupId>
+			<artifactId>commons-io</artifactId>
+			<version>2.11.0</version>
 		</dependency>
 	</dependencies>
 	<build>

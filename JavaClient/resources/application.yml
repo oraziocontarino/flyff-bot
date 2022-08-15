@@ -1,7 +1,7 @@
 server:
   port: 0
 release:
-  title: Flyff Bot v0.4.3
+  title: Flyff Bot v0.4.4
 logging:
   file.name: flyff-bot-cfg/logs.log
   pattern:
