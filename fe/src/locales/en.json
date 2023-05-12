@@ -1,0 +1,71 @@
+{
+  "common": {
+    "keyCodes": {
+      "0x11": "CTRL",
+      "0x12": "ALT",
+      "0x30": "0",
+      "0x31": "1",
+      "0x32": "2",
+      "0x33": "3",
+      "0x34": "4",
+      "0x35": "5",
+      "0x36": "6",
+      "0x37": "7",
+      "0x38": "8",
+      "0x39": "9"
+    }
+  },
+  "globalHotKeys": {
+    "title": "Global HotKeys",
+    "addPipe": "Add pipe",
+    "removePipe": "Remove pipe"
+  },
+  "pipe": {
+    "title": "Pipe {{id}}",
+    "defaultHotkeys": {
+      "title": "Default HotKeys",
+      "pause": "Pause Pipe",
+      "useCustomActionSlot": "Use Custom Action Slot"
+    },
+    "botStatus": {
+      "title": "Bot status",
+      "hotKeysLoop": {
+        "title": "HotKeys loop",
+        "status": {
+          "paused": "paused",
+          "idle": "idle",
+          "running": "running"
+        }
+      },
+      "customActionSlot": {
+        "title": "Custom Action Slot",
+        "status": {
+          "paused": "paused",
+          "idle": "idle",
+          "running": "running"
+        }
+      }
+    },
+    "selectWindowName": {
+      "title": "Target Flyff window",
+      "placeholder": "Select the target flyff window by name (look at the top window area)"
+    },
+    "hotKeysLoop": {
+      "title": "HotKeys loop",
+      "keys": {
+        "title": "Keys",
+        "placeholder": "..."
+      },
+      "delayMs": "Delay",
+      "active": "Active"
+    },
+    "customActionSlot": {
+      "title": "Custom action slot ({{count}} skills)",
+      "castTimeMs": "Cast time",
+      "keys": {
+        "title": "Keys",
+        "placeholder": "..."
+      }
+    }
+  }
+}
