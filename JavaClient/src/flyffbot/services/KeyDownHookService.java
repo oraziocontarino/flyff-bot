@@ -1,34 +1,39 @@
 package flyffbot.services;
 
-import flyffbot.dto.HotKeyDto;
+import flyffbot.dto.GlobalHotkeyDto;
 import flyffbot.enums.EventEnum;
 import flyffbot.enums.KeyStatus;
-import flyffbot.gui.listeners.KeyDownHookListener;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
-import org.apache.commons.lang3.StringUtils;
 import org.jnativehook.GlobalScreen;
 import org.jnativehook.NativeHookException;
 import org.jnativehook.SwingDispatchService;
 import org.jnativehook.keyboard.NativeKeyEvent;
 import org.jnativehook.keyboard.NativeKeyListener;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 @Slf4j
+@Service
 public class KeyDownHookService implements NativeKeyListener {
+	@Autowired
+	private PipelineServiceImpl pipelineService;
+
+	@Autowired
+	private  EventsServiceImpl eventsService;
 
 	private Map<Integer, KeyStatus> keyCodeStatusMap;
-	private AtomicReference<List<HotKeyDto>> hotKeys;
+	private AtomicReference<List<GlobalHotkeyDto>> hotKeys;
 
-	private final KeyDownHookListener events;
-
-	public KeyDownHookService(KeyDownHookListener events){
-		this.events = events;
-		boolean isDisabled = false;
+	public KeyDownHookService(){
+		log.info("KeyDown Listener - Initializing...");
+		boolean isDisabled = false; //For debug only
 		if(isDisabled){
+			log.warn("KeyDownHookService disabled! Must be enabled!");
 			return;
 		}
 
@@ -36,11 +41,11 @@ public class KeyDownHookService implements NativeKeyListener {
 			keyCodeStatusMap = new HashMap<>();
 			// Register hotkeys:
 			hotKeys = new AtomicReference<>(new ArrayList<>(List.of(
-					HotKeyDto.builder()
+					GlobalHotkeyDto.builder()
 							.event(EventEnum.ADD_PIPE)
 							.keys(Set.of(NativeKeyEvent.VC_ALT_L, NativeKeyEvent.VC_A))
 							.build(),
-					HotKeyDto.builder()
+					GlobalHotkeyDto.builder()
 							.event(EventEnum.REMOVE_PIPE)
 							.keys(Set.of(NativeKeyEvent.VC_ALT_L, NativeKeyEvent.VC_D))
 							.build()
@@ -57,23 +62,10 @@ public class KeyDownHookService implements NativeKeyListener {
 		}
 
 		GlobalScreen.addNativeKeyListener(this);
+		log.info("KeyDown Listener - Initialization completed!");
 	}
 
-	private void initializeKeyUpMap() {
-		keyCodeStatusMap.clear();
 
-		hotKeys.getAndUpdate(list -> {
-			val cpy = new ArrayList<>(list);
-			cpy.stream()
-					.map(HotKeyDto::getKeys)
-					.reduce(new HashSet<>(), (a, b) -> {
-						a.addAll(b);
-						return a;
-					})
-					.forEach(key -> keyCodeStatusMap.put(key, KeyStatus.UP));
-			return cpy;
-		});
-	}
 
 	@Override
 	public void nativeKeyPressed(NativeKeyEvent e) {
@@ -82,6 +74,7 @@ public class KeyDownHookService implements NativeKeyListener {
 			return;
 		}
 		keyCodeStatusMap.put(keyCode, KeyStatus.DOWN);
+		log.debug("key pressed {} -> {}", keyCode, keyCodeStatusMap);
 		handleEvent();
 	}
 
@@ -98,16 +91,16 @@ public class KeyDownHookService implements NativeKeyListener {
 	public void nativeKeyTyped(NativeKeyEvent e) {	
 	}
 
-	public void addKeyBinding(String pipeId, int pipeIndex){
+	public void addKeyBinding(Long pipeId, int pipeIndex){
 		hotKeys.getAndUpdate(list -> {
 			val cpy = new ArrayList<>(list);
-			cpy.add(HotKeyDto.builder()
+			cpy.add(GlobalHotkeyDto.builder()
 					.event(EventEnum.TOGGLE_PAUSE)
 					.pipeId(pipeId)
 					.keys(Set.of(NativeKeyEvent.VC_SHIFT_L, NativeKeyEvent.VC_1 + (pipeIndex * 2)))
 					.build()
 			);
-			cpy.add(HotKeyDto.builder()
+			cpy.add(GlobalHotkeyDto.builder()
 					.event(EventEnum.USE_CUSTOM_ACTION_SLOT)
 					.pipeId(pipeId)
 					.keys(Set.of(NativeKeyEvent.VC_SHIFT_L, NativeKeyEvent.VC_2 + (pipeIndex * 2)))
@@ -122,16 +115,33 @@ public class KeyDownHookService implements NativeKeyListener {
 		log.debug("addKeyBinding - {} - Registered USE_CUSTOM_ACTION_SLOT: SHIFT + {}", pipeId, (2+(pipeIndex*2)));
 	}
 
-	private void removeKeyBinding(String pipeId){
+	private void removeKeyBinding(long pipeId){
 		hotKeys.getAndUpdate(list -> {
 			val cpy = new ArrayList<>(list);
 			return cpy.stream()
 					// Keep global hotkeys and other pipe hotkeys
-					.filter(item -> !StringUtils.equals(item.getPipeId(), pipeId))
+					.filter(item -> item.getPipeId() != pipeId)
 					.collect(Collectors.toList());
 		});
 		initializeKeyUpMap();
 	}
+
+	private void initializeKeyUpMap() {
+		keyCodeStatusMap.clear();
+
+		hotKeys.getAndUpdate(list -> {
+			val cpy = new ArrayList<>(list);
+			cpy.stream()
+					.map(GlobalHotkeyDto::getKeys)
+					.reduce(new HashSet<>(), (a, b) -> {
+						a.addAll(b);
+						return a;
+					})
+					.forEach(key -> keyCodeStatusMap.put(key, KeyStatus.UP));
+			return cpy;
+		});
+	}
+
 	private void handleEvent(){
 		hotKeys.getAndUpdate(list -> {
 			val cpy = new ArrayList<>(list);
@@ -143,18 +153,22 @@ public class KeyDownHookService implements NativeKeyListener {
 					return;
 				}
 				log.debug("Running: {}", item.getEvent());
+				val pipelineId = item.getPipeId();
 				switch (item.getEvent()) {
 					case ADD_PIPE:
-						events.onAddPipe();
+						val pipe = pipelineService.addNewPipe();
+						val index = pipelineService.findIndex(pipe.getId());
+						addKeyBinding(pipe.getId(), index);
 						break;
 					case REMOVE_PIPE:
-						events.onRemovePipe().ifPresent(this::removeKeyBinding);
+						val deletedId = pipelineService.removeLastPipe();
+						removeKeyBinding(deletedId);
 						break;
 					case TOGGLE_PAUSE:
-						events.onTogglePause(item.getPipeId());
+						pipelineService.updateTogglePause(pipelineId);
 						break;
 					case USE_CUSTOM_ACTION_SLOT:
-						events.onCustomActionSlot(item.getPipeId());
+						eventsService.scheduleCustomActionSlot(pipelineId);
 						break;
 					default:
 						log.error("Unexpected action found: {}", item.getEvent());

@@ -1,7 +1,24 @@
-server:
-  port: 0
 release:
   title: Flyff Bot v0.4.4
+server:
+  port: 8899
+spring:
+  h2:
+    console:
+      enabled: true
+      path: /h2-console #http://localhost:8899/h2-console
+      settings.trace: true
+      settings.web-allow-others: true
+  datasource:
+    url: jdbc:h2:file:./demo
+    username: sa
+    password: password
+    driverClassName: org.h2.Driver
+  jpa:
+    spring.jpa.database-platform: org.hibernate.dialect.H2Dialect
+    show-sql: false
+    generate-ddl: true
+    hibernate.ddl-auto: update
 logging:
   file.name: flyff-bot-cfg/logs.log
   pattern:
