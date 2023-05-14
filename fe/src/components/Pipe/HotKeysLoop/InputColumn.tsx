@@ -1,7 +1,7 @@
 import { Row, Col, Select } from "antd"
 import React, { useCallback, useMemo } from "react"
 import { useTranslation } from "react-i18next"
-import { useUpdateHotkeyHexValueMutation } from "../../../api/hotkey/hooks"
+import { useUpdateHotkeyHexValue } from "../../../api/hooks/hotkeys"
 import { AuxCodes, Hotkey, KeyCodes } from "../../../api/types"
 
 type InputColumArgs = {
@@ -11,7 +11,7 @@ export const InputColum:React.FC<InputColumArgs> = ({
   item
 })=>{
   const {t} = useTranslation();
-  const [updateHexValue] = useUpdateHotkeyHexValueMutation();
+  const updateHexValue = useUpdateHotkeyHexValue();
   const prepareOptions = useCallback((enumOptions: typeof AuxCodes | typeof KeyCodes) => (
     Object.values(enumOptions).map(value => (
       {value, label: t(`common.keyCodes.${value}`)}
@@ -27,7 +27,7 @@ export const InputColum:React.FC<InputColumArgs> = ({
         <Select
           className={'width-100'}
           value={item.hexKeyCode0}
-          onChange={(hexKeyCode) => updateHexValue({hotkeyId: item.id, hotkeyIndex: 0, hexKeyCode})}
+          onChange={(hexKeyCode) => updateHexValue({id: item.id, keyIndex: 0, hexKeyCode})}
           options={[
             { value: '', label: t('pipe.hotKeysLoop.keys.placeholder'), disabled: true },
             ...auxKeysOptions,
@@ -38,7 +38,7 @@ export const InputColum:React.FC<InputColumArgs> = ({
         <Select
           className={'width-100'}
           value={item.hexKeyCode1}
-          onChange={(hexKeyCode) => updateHexValue({hotkeyId: item.id, hotkeyIndex: 1, hexKeyCode})}
+          onChange={(hexKeyCode) => updateHexValue({id: item.id, keyIndex: 1, hexKeyCode})}
           options={[
             { value: '', label: t('pipe.hotKeysLoop.keys.placeholder'), disabled: true },
             ...keyCodesOptions

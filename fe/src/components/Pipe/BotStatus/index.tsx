@@ -1,23 +1,21 @@
 import { Descriptions } from "antd";
 import { useTranslation } from "react-i18next";
 import FBCardTitle from "../../common/CardTitle";
-import { useSelectConfig } from "../../common/hooks";
 import FBSpinner from "../../common/FBSpinner";
 import { FBFeature } from "../../common/types";
 import { useMemo } from "react";
+import { useSelector } from "react-redux";
+import { selectors } from "../../../api/slice";
 
 
-const BotStatus:React.FC<FBFeature> = ({configurationId}) => {
+const BotStatus:React.FC<FBFeature> = ({pipelineId}) => {
   const {t} = useTranslation();
-  const { pipeData } = useSelectConfig(configurationId);
-
-  const isPaused = useMemo(() => (
-    pipeData?.pipeline.paused
-  ), [pipeData?.pipeline.paused]);
+  const pipelineConfiguration = useSelector(selectors.pipelineConfigurationSelector(pipelineId));
+  const hotkeysConfiguration = useSelector(selectors.hotkeysConfigurationSelector(pipelineId));
 
   const isAnyActive = useMemo(() => (
-    pipeData?.hotkeys.find(item => item.active) !== undefined
-  ), [pipeData?.hotkeys]);
+    hotkeysConfiguration?.find(item => item.active) !== undefined
+  ), [hotkeysConfiguration]);
 
 
   return (
@@ -25,12 +23,12 @@ const BotStatus:React.FC<FBFeature> = ({configurationId}) => {
       <FBCardTitle title={t('pipe.botStatus.title')}/>
       <Descriptions size={'small'}>
         <Descriptions.Item label={t('pipe.botStatus.hotKeysLoop.title')}>
-          <FBSpinner paused={isPaused || !isAnyActive} />
+          <FBSpinner paused={pipelineConfiguration?.paused || !isAnyActive} />
         </Descriptions.Item>
       </Descriptions>
       <Descriptions size={'small'}>
         <Descriptions.Item label={t('pipe.botStatus.customActionSlot.title')}>
-          <FBSpinner paused={isPaused || pipeData?.pipeline.customActionSlotRunning} />
+          <FBSpinner paused={pipelineConfiguration?.paused || pipelineConfiguration?.customActionSlotRunning} />
         </Descriptions.Item>
       </Descriptions>
     </>

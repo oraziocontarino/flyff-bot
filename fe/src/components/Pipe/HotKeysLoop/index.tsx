@@ -1,6 +1,6 @@
-import { Button, Col, InputNumber, Row, Select, Switch, Table } from "antd";
+import { Button, InputNumber, Switch, Table } from "antd";
 import { ColumnsType } from "antd/es/table";
-import { useCallback, useMemo } from "react";
+import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import FBCardTitle from "../../common/CardTitle";
 import {
@@ -8,23 +8,25 @@ import {
   DeleteOutlined
 } from '@ant-design/icons';
 import { FBFeature } from "../../common/types";
-import { useSelectConfig } from "../../common/hooks";
-import { AuxCodes, Hotkey, KeyCodes } from "../../../api/types";
-import { useAddHotkeyMutation, useDeleteHotkeyMutation, useUpdateHotkeyActiveMutation, useUpdateHotkeyDelayMutation, useUpdateHotkeyHexValueMutation } from "../../../api/hotkey/hooks";
+import { Hotkey } from "../../../api/types";
 import { InputColum } from "./InputColumn";
+import { useSelector } from "react-redux";
+import { selectors } from "../../../api/slice";
+import {
+  useAddHotkey,
+  useUpdateHotkeyDelay,
+  useUpdateHotkeyActive,
+  useDeleteHotkey
+} from "../../../api/hooks/hotkeys";
 
-const HotKeysLoop:React.FC<FBFeature> = ({configurationId}) => {
+const HotKeysLoop:React.FC<FBFeature> = ({pipelineId}) => {
   const {t} = useTranslation();
-  const { pipeData } = useSelectConfig(configurationId);
-  const hotkeys = useMemo(()=> pipeData?.hotkeys ?? [], [pipeData?.hotkeys]);
-  const [addHotkey] = useAddHotkeyMutation();
-  const [updateDelay] = useUpdateHotkeyDelayMutation()
-  const [updateActive] = useUpdateHotkeyActiveMutation();
-  const [deleteHotkey] = useDeleteHotkeyMutation();
+  const hotkeysConfiguration = useSelector(selectors.hotkeysConfigurationSelector(pipelineId));
 
-
-
-
+  const addHotkey = useAddHotkey();
+  const updateDelay = useUpdateHotkeyDelay()
+  const updateActive = useUpdateHotkeyActive();
+  const deleteHotkey = useDeleteHotkey();
 
   const columns = useMemo<ColumnsType<Hotkey>>(()=> [
     {
@@ -40,7 +42,7 @@ const HotKeysLoop:React.FC<FBFeature> = ({configurationId}) => {
         <InputNumber
           value={item.delayMs}
           addonAfter={'ms'}
-          onChange={(delayMs)=>updateDelay({hotkeyId: item.id, delayMs: delayMs ?? undefined })}
+          onChange={(delayMs)=>updateDelay({id: item.id, delayMs: delayMs ?? undefined })}
         />
       ),
     },
@@ -51,7 +53,7 @@ const HotKeysLoop:React.FC<FBFeature> = ({configurationId}) => {
       render: (_, item) => (
         <Switch
           defaultChecked={item.active}
-          onChange={(active) => updateActive({hotkeyId: item.id, active})}
+          onChange={(active) => updateActive({id: item.id, active})}
         />
       ),
     },
@@ -59,7 +61,7 @@ const HotKeysLoop:React.FC<FBFeature> = ({configurationId}) => {
       title: <Button
         type="primary"
         icon={<PlusCircleOutlined />}
-        onClick={()=>addHotkey(configurationId)}
+        onClick={()=>addHotkey({pipelineId})}
       />,
       key: 'actions',
       width: 50,
@@ -68,19 +70,19 @@ const HotKeysLoop:React.FC<FBFeature> = ({configurationId}) => {
           type="text"
           icon={<DeleteOutlined />}
           danger
-          onClick={()=>deleteHotkey(item.id)}
+          onClick={()=>deleteHotkey({id: item.id})}
         />
       ),
     },
 
-  ], [addHotkey, configurationId, deleteHotkey, t, updateActive, updateDelay]);
+  ], [addHotkey, pipelineId, deleteHotkey, t, updateActive, updateDelay]);
 
   return (
     <>
       <FBCardTitle title={t('pipe.hotKeysLoop.title')}/>
       <Table
         columns={columns}
-        dataSource={hotkeys}
+        dataSource={hotkeysConfiguration}
         size="small"
         pagination={false}
       />

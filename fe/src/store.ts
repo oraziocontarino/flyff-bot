@@ -1,21 +1,14 @@
-import { configureStore, ConfigureStoreOptions } from '@reduxjs/toolkit'
+import { configureStore } from '@reduxjs/toolkit'
 import { TypedUseSelectorHook, useDispatch, useSelector } from 'react-redux'
+import { flyffBotReducer } from './api/slice';
 
-import api from './api/core'
+const store = configureStore({
+  reducer: {
+    flyffBot: flyffBotReducer,
+  },
+});
 
-export const createStore = (
-  options?: ConfigureStoreOptions['preloadedState'] | undefined
-) =>
-  configureStore({
-    reducer: {
-      [api.reducerPath]: api.reducer,
-    },
-    middleware: (getDefaultMiddleware) =>
-      getDefaultMiddleware().concat(api.middleware),
-    ...options,
-  })
-
-export const store = createStore()
+export default store;
 
 export type AppDispatch = typeof store.dispatch
 export const useAppDispatch: () => AppDispatch = useDispatch

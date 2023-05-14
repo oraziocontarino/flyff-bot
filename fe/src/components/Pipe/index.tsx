@@ -20,11 +20,11 @@ const Pipe:React.FC<PipeProps> = ({id}) => {
 
   const configs = useMemo(()=>[
     { class: 'fb-card-grid-item-100', component: <FBCardTitle title={t('pipe.title', {id})}/> },
-    { class: 'fb-card-grid-item-100', component: <SelectWindowName configurationId={id}/> },
-    { class: 'fb-card-grid-item-50', component: <DefaultHotKeys configurationId={id}/> },
-    { class: 'fb-card-grid-item-50', component: <BotStatus configurationId={id} /> },
-    { class: 'fb-card-grid-item-100', component: <HotKeysLoop configurationId={id} /> },
-    { class: 'fb-card-grid-item-100', component: <CustomActionSlot configurationId={id} /> },
+    { class: 'fb-card-grid-item-100', component: <SelectWindowName pipelineId={id}/> },
+    { class: 'fb-card-grid-item-50', component: <DefaultHotKeys pipelineId={id}/> },
+    { class: 'fb-card-grid-item-50', component: <BotStatus pipelineId={id} /> },
+    { class: 'fb-card-grid-item-100', component: <HotKeysLoop pipelineId={id} /> },
+    { class: 'fb-card-grid-item-100', component: <CustomActionSlot pipelineId={id} /> },
   ], [id, t]);
 
   const content = useMemo(()=> configs.map((config, i) => (

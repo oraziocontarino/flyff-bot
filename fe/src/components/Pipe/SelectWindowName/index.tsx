@@ -1,37 +1,35 @@
 import { Select } from "antd";
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { useSelector } from "react-redux";
-import { useUpdateSelectedWindowMutation } from "../../../api/pipeline/hooks";
-import { windowListSelector } from "../../../api/pipeline/selectors";
+import { useUpdateSelectedWindow } from "../../../api/hooks/pipeline";
+import { selectors } from "../../../api/slice";
 import FBCardTitle from "../../common/CardTitle";
-import { useSelectConfig } from "../../common/hooks";
 import { FBFeature } from "../../common/types";
 
-
-const SelectWindowName:React.FC<FBFeature> = ({configurationId}) => {
+const SelectWindowName:React.FC<FBFeature> = ({pipelineId}) => {
   const {t} = useTranslation();
-  const { pipeData } = useSelectConfig(configurationId);
-  const selectedWindowHwnd = useMemo(()=> pipeData?.pipeline.selectedWindowHwnd, [pipeData?.pipeline.selectedWindowHwnd]);
+  const pipelineConfiguration = useSelector(selectors.pipelineConfigurationSelector(pipelineId));
+  const windowList = useSelector(selectors.windowsSelector);
+  const isSelectedAndNotExists = useSelector(selectors.isSelectedAndNotExistsSelector(pipelineId));
 
-  const windowList = useSelector(windowListSelector);
-  const [updateSelectedWindow] = useUpdateSelectedWindowMutation();
+  const selectedWindowHwnd = useMemo(()=> (
+    pipelineConfiguration?.selectedWindowHwnd
+  ), [pipelineConfiguration?.selectedWindowHwnd]);
+
+  const { updateSelectedWindow } = useUpdateSelectedWindow();
 
   const options = useMemo(() => (
-    windowList?.map(({hwnd:value, title:label}) => ({value, label})) ?? []
+    windowList.map(({hwnd:value, title:label}) => ({value, label})) ?? []
   ), [windowList]);
 
   useEffect(() => {
-    if(windowList === undefined || selectedWindowHwnd === undefined) {
+    if(isSelectedAndNotExists) {
       // Nothing to unselect, it's already undefined!
       return;
     }
-    const notExists = !windowList.some(item => item.hwnd === selectedWindowHwnd);
-    if(notExists){
-      console.log("@@@ " + configurationId + " Case B] debug option pipeData ", {selectedWindowHwnd, pipeData, windowList});
-      updateSelectedWindow({configurationId, hwnd: undefined});
-    }
-  }, [configurationId, pipeData, selectedWindowHwnd, updateSelectedWindow, windowList]);
+    updateSelectedWindow({pipelineId, hwnd: undefined});
+  }, [pipelineId, isSelectedAndNotExists, updateSelectedWindow]);
 
   return (
     <>
@@ -41,8 +39,8 @@ const SelectWindowName:React.FC<FBFeature> = ({configurationId}) => {
       value={selectedWindowHwnd}
       className={'width-100'}
       onChange={(hwnd) => {
-        console.log("@@@ sending update...", {configurationId, hwnd});
-        updateSelectedWindow({configurationId, hwnd});
+        console.log("@@@ sending update...", {pipelineId, hwnd});
+        updateSelectedWindow({pipelineId, hwnd});
       }}
       options={options}
     />

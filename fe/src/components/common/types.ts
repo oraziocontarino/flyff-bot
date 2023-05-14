@@ -1,3 +1,3 @@
 export type FBFeature = {
-  configurationId: number;
+  pipelineId: number;
 }

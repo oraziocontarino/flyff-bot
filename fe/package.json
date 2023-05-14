@@ -11,6 +11,7 @@
     "@types/node": "^16.18.25",
     "@types/react": "^18.2.0",
     "@types/react-dom": "^18.2.1",
+    "@types/sockjs-client": "^1.5.1",
     "antd": "^5.4.6",
     "axios": "^1.4.0",
     "i18next": "^22.4.15",
@@ -21,7 +22,9 @@
     "react-i18next": "^12.2.2",
     "react-redux": "^8.0.5",
     "react-scripts": "5.0.1",
+    "react-stomp": "^5.1.0",
     "redux": "^4.2.1",
+    "sockjs-client": "^1.6.1",
     "typescript": "^4.9.5",
     "web-vitals": "^2.1.4"
   },
@@ -50,7 +53,8 @@
     ]
   },
   "devDependencies": {
-    "@types/react-redux": "^7.1.25"
+    "@types/react-redux": "^7.1.25",
+    "@types/stompjs": "^2.3.5"
   },
   "proxy": "http://localhost:8899/"
 }

@@ -1,15 +1,7 @@
-export type RTKResponse<T> = {
-  data: T,
-  error: string,
-  id: string,
-  isError: boolean,
-  isLoading: boolean
-}
-
 export type Configuration = {
   pipeline: Pipeline,
   hotkeys: Hotkey[];
-  customActionSlots:CustomActionSlot[];
+  customActionSlots:CustomActionSlotItem[];
 }
 
 export type Pipeline = {
@@ -47,27 +39,15 @@ export enum KeyCodes {
   ZERO = '0x30',
 }
 
-type CustomActionSlot = {
+export type CustomActionSlotItem = {
   id:number,
   castTime:number,
   hexKeyCode0:string,
   hexKeyCode1:string,
 }
 
-export enum HttpMethod {
-  GET = 'GET',
-  POST = 'POST',
-  PUT = 'PUT',
-  DELETE = 'DELETE'
-}
-
 export type WindowItem = {
   title: string;
   hwnd: string;
   isNull: boolean;
-}
-
-export type UpdateSelectedWindowRequest = {
-  configurationId: number;
-  hwnd?: string;
 }

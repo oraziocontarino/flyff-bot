@@ -4,7 +4,7 @@ import FBCardTitle from "../../common/CardTitle";
 import { FBFeature } from "../../common/types";
 
 
-const DefaultHotKeys:React.FC<FBFeature> = ({configurationId}) => {
+const DefaultHotKeys:React.FC<FBFeature> = ({pipelineId}) => {
   const {t} = useTranslation();
   return (
     <>

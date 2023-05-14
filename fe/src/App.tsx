@@ -4,14 +4,40 @@ import { Content, Footer } from 'antd/es/layout/layout';
 import GlobalHotKeys from './components/GlobalHotKeys';
 import './App.css';
 import Pipe from './components/Pipe';
-import { useFetchConfigurationQuery, useFetchWindowListQuery } from './api/pipeline/hooks';
+import { FlyffBotActions } from './api/slice';
+import { useDispatch } from 'react-redux';
+import { useRequestConfiguration, useSocketConnect, useSubribeConfigurationUpdates, useSubribeWindowListUpdates } from './api/hooks/pipeline';
+
+
 
 const App:React.FC = () => {
-  const {data, isLoading, isError, error} = useFetchConfigurationQuery();
-  useFetchWindowListQuery(undefined, {pollingInterval: 3000, });
-  //useFetchConfigurationQuery(undefined, {pollingInterval: 1000, });
+  const dispatch = useDispatch();
+  const { isConnected } = useSocketConnect();
+  const { configurations } = useSubribeConfigurationUpdates();
+  const { windowList } = useSubribeWindowListUpdates();
+  const { requestConfiguration } = useRequestConfiguration();
 
 
+  useEffect(() => {
+    if(isConnected){
+      requestConfiguration();
+    }
+  }, [isConnected, requestConfiguration]);
+
+  useEffect(() => {
+    // Store to redux to share value to other components
+    dispatch(FlyffBotActions.storeConnectionSatus({isConnected}));
+  }, [dispatch, isConnected]);
+
+  useEffect(() => {
+    // Store to redux to share value to other components
+    dispatch(FlyffBotActions.storeConfigurations(configurations));
+  }, [dispatch, configurations]);
+
+  useEffect(() => {
+    // Store to redux to share value to other components
+    dispatch(FlyffBotActions.storeWindowList(windowList));
+  }, [dispatch, windowList]);
 
   return (
     <Layout style={{height:"100vh"}}>
@@ -20,14 +46,16 @@ const App:React.FC = () => {
           <Col><GlobalHotKeys /></Col>
         </Row>
         <Row>
-          { data && data.map(configurations => (
-            <Col className='fb-padding-top fb-padding-left' key={configurations.pipeline.id}>
-              <Pipe id={configurations.pipeline.id} />
+          { configurations && configurations.map(configuration => (
+            <Col className='fb-padding-top fb-padding-left' key={configuration.pipeline.id}>
+              <Pipe id={configuration.pipeline.id} />
             </Col>
           ))}
         </Row>
       </Content>
-      <Footer>Footer</Footer>
+      <Footer>
+        Footer -&gt; {isConnected ? 'connected' : 'not-connected'}
+      </Footer>
     </Layout>
   );
 }
