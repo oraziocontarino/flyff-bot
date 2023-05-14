@@ -1,4 +1,4 @@
-package flyffbot.dto;
+package flyffbot.dto.customactionslot;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -10,5 +10,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UpdateCastTimeRequestDto {
+    private long id;
     private long castTimeMs;
 }

@@ -2,18 +2,18 @@ package flyffbot.services;
 
 import flyffbot.actions.HotkeyActionRunner;
 import flyffbot.entity.HotkeyEntity;
-import flyffbot.entity.PipelineEntity;
 import flyffbot.enums.KeyStatus;
 import flyffbot.services.nativeservices.NativeSendKeyService;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;

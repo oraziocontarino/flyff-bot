@@ -26,6 +26,9 @@ public class KeyDownHookService implements NativeKeyListener {
 	@Autowired
 	private  EventsServiceImpl eventsService;
 
+	@Autowired
+	private SocketMessageSenderServiceImpl socketMessageSenderService;
+
 	private Map<Integer, KeyStatus> keyCodeStatusMap;
 	private AtomicReference<List<GlobalHotkeyDto>> hotKeys;
 
@@ -173,6 +176,7 @@ public class KeyDownHookService implements NativeKeyListener {
 					default:
 						log.error("Unexpected action found: {}", item.getEvent());
 				}
+				socketMessageSenderService.sendUpdatedConfiguration();
 			});
 			return cpy;
 		});

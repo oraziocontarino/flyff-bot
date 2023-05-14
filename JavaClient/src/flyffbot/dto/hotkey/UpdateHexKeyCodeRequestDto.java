@@ -1,4 +1,4 @@
-package flyffbot.dto;
+package flyffbot.dto.hotkey;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,7 +9,8 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class WindowNameRowDto {
-    private String name;
-    private String hwnd;
+public class UpdateHexKeyCodeRequestDto {
+    private long id;
+    private int keyIndex;
+    private String hexKeyCode;
 }

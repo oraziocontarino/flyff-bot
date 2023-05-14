@@ -1,4 +1,4 @@
-package flyffbot.dto;
+package flyffbot.dto.pipeline;
 
 import flyffbot.entity.CustomActionSlotEntity;
 import flyffbot.entity.HotkeyEntity;
@@ -14,7 +14,7 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class PipelineWithHotkeysAndCustomActionSlots {
+public class ConfigurationDto {
     private PipelineEntity pipeline;
     private List<HotkeyEntity> hotkeys;
     private List<CustomActionSlotEntity> customActionSlotEntities;

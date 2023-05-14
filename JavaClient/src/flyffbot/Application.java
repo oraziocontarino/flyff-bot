@@ -4,13 +4,12 @@ package flyffbot;
 import flyffbot.exceptions.SaveLoadException;
 import flyffbot.services.EventsServiceImpl;
 import flyffbot.services.KeyDownHookService;
+import flyffbot.services.SocketMessageSenderServiceImpl;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
+import org.apache.commons.io.IOUtils;
 import org.apache.logging.log4j.LogManager;
-import org.apache.tomcat.util.http.fileupload.IOUtils;
 import org.hibernate.engine.query.spi.HQLQueryPlan;
-import org.hibernate.internal.CoreLogging;
-import org.hibernate.internal.CoreMessageLogger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -26,20 +25,12 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 @ComponentScan(basePackages = "flyffbot")
 @Slf4j
 @SpringBootApplication
 public class Application {
-    @Value("${release.title}")
-    private String title;
-
-    @Value("${pipe-config.min}")
-    private int minPipes;
-
-    @Value("${pipe-config.max}")
-    private int maxPipes;
-
     @Value("${auto-save.folder-name}")
     private String folderName;
 
@@ -49,13 +40,13 @@ public class Application {
     @Autowired
     private EventsServiceImpl eventsService;
 
+    @Autowired
+    private ScheduledExecutorService scheduledExecutorService;
+    @Autowired
+    private SocketMessageSenderServiceImpl socketMessageSenderService;
+
     public static void main(String[] args) {
         new SpringApplicationBuilder(Application.class).headless(false).run(args);
-    }
-
-    @Bean
-    public static ScheduledExecutorService buildScheduler(){
-        return Executors.newScheduledThreadPool(20);
     }
 
     @EventListener(ApplicationReadyEvent.class)
@@ -65,13 +56,18 @@ public class Application {
         initNativeApi();
         log.info("Native API - Initialization completed!");
 
-        log.info("Hotkeys Scheduler - Initializing...");
+        log.info("Hotkeys scheduler - Initializing...");
         eventsService.initHotkeysScheduler();
-        log.info("Hotkeys Scheduler - Initialization completed!");
+        log.info("Hotkeys scheduler - Initialization completed!");
 
-        log.info("Hotkeys Scheduler - Initializing...");
-        eventsService.initHotkeysScheduler();
-        log.info("Hotkeys Scheduler - Initialization completed!");
+        log.info("Window list scheduler - Initializing...");
+        scheduledExecutorService.scheduleAtFixedRate(
+                socketMessageSenderService::sendWindowList,
+                0,
+                1,
+                TimeUnit.SECONDS
+        );
+        log.info("Window list scheduler - Initialization completed!");
     }
 
     private void initNativeApi(){

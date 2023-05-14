@@ -1,4 +1,4 @@
-package flyffbot.dto;
+package flyffbot.dto.pipeline;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class UpdateHexKeyCodeRequestDto {
-    private String hexKeyCode;
+public class UpdateSelectedWindowRequestDto {
+    private Long pipelineId;
+    private String hwnd;
 }

@@ -1,5 +1,3 @@
-release:
-  title: Flyff Bot v0.4.4
 server:
   port: 8899
 spring:
@@ -29,12 +27,8 @@ logging:
     org.springframework.web: INFO
     org.jnativehook: WARN
 disable-key-down-hook: false # Only for debug, to remove lag caused by hotkey hook in debug mode #
-pipe-config:
-  max: 3 # From 1 to 3 #
-  min: 1 # Not less then 1 pipe
 auto-save:
   folder-name: flyff-bot-cfg
-  file-name: flyffbot-userconfig
 native-service:
   get-window-list-args:
     api:
@@ -63,3 +57,7 @@ native-service:
     keystroke-id:
       name: keystroke-id
       value: # Dynamic value, read from UI combobox
+socket:
+  topics:
+    updated-configuration:
+    updated-window-list: /topic/updated-window-list

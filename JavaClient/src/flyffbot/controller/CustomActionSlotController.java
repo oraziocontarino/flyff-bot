@@ -1,44 +1,53 @@
 package flyffbot.controller;
 
-import flyffbot.dto.UpdateCastTimeRequestDto;
-import flyffbot.dto.UpdateHexKeyCodeRequestDto;
+import flyffbot.configuration.WebSocketConfig;
+import flyffbot.dto.customactionslot.CreateCustomActionSlotDto;
+import flyffbot.dto.customactionslot.DeleteCustomActionSlotDto;
+import flyffbot.dto.customactionslot.UpdateCastTimeRequestDto;
+import flyffbot.dto.customactionslot.UpdateHexKeyCodeRequestDto;
+import flyffbot.dto.pipeline.ConfigurationDto;
+import flyffbot.services.ConfigurationServiceImpl;
 import flyffbot.services.CustomActionSlotServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @Controller
-@RequestMapping("custom-action-slots")
 public class CustomActionSlotController {
     @Autowired
     private CustomActionSlotServiceImpl service;
 
-    @PostMapping("/{pipelineId}")
-    public ResponseEntity<Void> create(@PathVariable long pipelineId) {
-        service.addCustomActionSlot(pipelineId);
-        return ResponseEntity.ok().build();
+    @Autowired
+    private ConfigurationServiceImpl configurationService;
+
+    @MessageMapping("/post-custom-action-slot")
+    @SendTo(WebSocketConfig.UPDATED_CONFIGURATIONS_TOPIC)
+    public List<ConfigurationDto> create(CreateCustomActionSlotDto request) {
+        service.addCustomActionSlot(request.getPipelineId());
+        return configurationService.retrieveConfiguration();
     }
 
-    @PutMapping("/{id}/key/{keyIndex}")
-    public ResponseEntity<Void> updateHexValue(
-            @PathVariable long id,
-            @PathVariable int keyIndex, //0=first key, 1=second key
-            @RequestBody UpdateHexKeyCodeRequestDto body
-    ){
-        service.updateCustomActionSlot(id, keyIndex, body.getHexKeyCode());
-        return ResponseEntity.ok().build();
+    @MessageMapping("/put-custom-action-slot-hex-key-code")
+    @SendTo(WebSocketConfig.UPDATED_CONFIGURATIONS_TOPIC)
+    public List<ConfigurationDto> updateHexKeyCode(UpdateHexKeyCodeRequestDto request) {
+        service.updateCustomActionSlot(request.getId(), request.getKeyIndex(), request.getHexKeyCode());
+        return configurationService.retrieveConfiguration();
     }
 
-    @PutMapping("/{id}/cast-time")
-    public ResponseEntity<Void> updateCastTime(@PathVariable long id, @RequestBody UpdateCastTimeRequestDto body){
-        service.updateCastTime(id, body.getCastTimeMs());
-        return ResponseEntity.ok().build();
+    @MessageMapping("/put-custom-action-slot-cast-time")
+    @SendTo(WebSocketConfig.UPDATED_CONFIGURATIONS_TOPIC)
+    public List<ConfigurationDto> updateDelay(UpdateCastTimeRequestDto request) {
+        service.updateCastTime(request.getId(), request.getCastTimeMs());
+        return configurationService.retrieveConfiguration();
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteHotKeys(@PathVariable long id){
-        service.deleteById(id);
-        return ResponseEntity.ok().build();
+    @MessageMapping("/delete-custom-action-slot")
+    @SendTo(WebSocketConfig.UPDATED_CONFIGURATIONS_TOPIC)
+    public List<ConfigurationDto> delete(DeleteCustomActionSlotDto request) {
+        service.deleteById(request.getId());
+        return configurationService.retrieveConfiguration();
     }
 }

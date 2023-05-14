@@ -1,58 +1,42 @@
 package flyffbot.controller;
 
-import flyffbot.dto.PipelineWithHotkeysAndCustomActionSlots;
-import flyffbot.dto.UpdateSelectedWindowRequestDto;
-import flyffbot.dto.nativeapi.WindowItem;
-import flyffbot.services.CustomActionSlotServiceImpl;
-import flyffbot.services.HotkeyServiceImpl;
+import flyffbot.configuration.WebSocketConfig;
+import flyffbot.dto.pipeline.ConfigurationDto;
+import flyffbot.dto.pipeline.UpdateSelectedWindowRequestDto;
+import flyffbot.services.ConfigurationServiceImpl;
 import flyffbot.services.PipelineServiceImpl;
-import flyffbot.services.nativeservices.NativeGetWindowListService;
-import lombok.val;
+import flyffbot.services.SocketMessageSenderServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Controller
 public class PipelineController {
+    @Value("${socket.topics.updated-configuration}")
+    private String updatedConfigurationTopic;
     @Autowired
     private PipelineServiceImpl pipelineService;
     @Autowired
-    private HotkeyServiceImpl hotkeyService;
-    @Autowired
-    private CustomActionSlotServiceImpl customActionSlotService;
+    private ConfigurationServiceImpl configurationService;
 
     @Autowired
-    private NativeGetWindowListService nativeGetWindowListService;
+    private SocketMessageSenderServiceImpl socketMessageSenderService;
 
-    @GetMapping("/configuration")
-    public ResponseEntity<List<PipelineWithHotkeysAndCustomActionSlots>> fetchConfiguration(){
-        return ResponseEntity.ok(
-                pipelineService.findAllPipes().stream().map(pipe ->
-                        PipelineWithHotkeysAndCustomActionSlots.builder()
-                                .pipeline(pipe)
-                                .hotkeys(hotkeyService.findByPipelineId(pipe.getId()))
-                                .customActionSlotEntities(customActionSlotService.findByPipelineId(pipe.getId()))
-                                .build()
-                ).collect(Collectors.toList())
-        );
+    @MessageMapping("/get-configuration")
+    @SendTo(WebSocketConfig.UPDATED_CONFIGURATIONS_TOPIC)
+    public List<ConfigurationDto> retrieveConfiguration() {
+        return configurationService.retrieveConfiguration();
     }
 
-    @GetMapping("/windows")
-    public ResponseEntity<List<WindowItem>> fetchWindowList(){
-        val response = nativeGetWindowListService.execute();
-        return ResponseEntity.ok(response.getData());
-    }
-
-    @PutMapping("/windows")
-    public ResponseEntity<Boolean> updateSelectedWindow(@RequestBody UpdateSelectedWindowRequestDto args){
-        pipelineService.saveSelectedWindowHwnd(args.getConfigurationId(), args.getHwnd());
-        return ResponseEntity.ok(true);
+    @MessageMapping("/put-selected-window")
+    @SendTo(WebSocketConfig.UPDATED_CONFIGURATIONS_TOPIC)
+    public List<ConfigurationDto> updateSelectedWindow(UpdateSelectedWindowRequestDto args) {
+        pipelineService.saveSelectedWindowHwnd(args.getPipelineId(), args.getHwnd());
+        return configurationService.retrieveConfiguration();
     }
 
 }

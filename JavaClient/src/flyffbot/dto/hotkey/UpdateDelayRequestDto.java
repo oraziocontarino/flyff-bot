@@ -1,4 +1,4 @@
-package flyffbot.dto;
+package flyffbot.dto.hotkey;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class UpdateHotkeyDelayRequestDto {
+public class UpdateDelayRequestDto {
+    private long id;
     private long delayMs;
 }

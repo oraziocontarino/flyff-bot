@@ -1,9 +1,14 @@
 package flyffbot.entity;
 
-import com.fasterxml.jackson.annotation.JsonManagedReference;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-import javax.persistence.*;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
 
 @Entity(name = "hotkey")
 @Data
@@ -21,8 +26,4 @@ public class HotkeyEntity {
     private long lastTimeExecutedMs;
     private long pipelineId;
     private boolean executing;
-
-//    @ManyToOne(fetch = FetchType.LAZY)
-//    @JoinColumn(name = "pipelineId", referencedColumnName = "id", insertable = false, updatable = false)
-//    private PipelineEntity pipeline;
 }

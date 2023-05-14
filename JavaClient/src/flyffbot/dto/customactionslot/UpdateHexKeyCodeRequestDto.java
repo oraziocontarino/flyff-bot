@@ -1,4 +1,4 @@
-package flyffbot.dto;
+package flyffbot.dto.customactionslot;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,6 +9,8 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class UpdateHotkeyActiveRequest {
-    private boolean active;
+public class UpdateHexKeyCodeRequestDto {
+    private long id;
+    private int keyIndex;
+    private String hexKeyCode;
 }

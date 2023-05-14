@@ -1,54 +1,61 @@
 package flyffbot.controller;
 
-import flyffbot.dto.UpdateHexKeyCodeRequestDto;
-import flyffbot.dto.UpdateHotkeyActiveRequest;
-import flyffbot.dto.UpdateHotkeyDelayRequestDto;
-import flyffbot.services.EventsServiceImpl;
+import flyffbot.configuration.WebSocketConfig;
+import flyffbot.dto.hotkey.*;
+import flyffbot.dto.pipeline.ConfigurationDto;
+import flyffbot.services.ConfigurationServiceImpl;
 import flyffbot.services.HotkeyServiceImpl;
-import lombok.val;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @Controller
-@RequestMapping("hotkeys")
 public class HotkeyController {
+    @Value("${socket.topics.updated-configuration}")
+    private String updatedConfigurationTopic;
     @Autowired
     private HotkeyServiceImpl hotkeyService;
 
+    @Autowired
+    private ConfigurationServiceImpl configurationService;
 
-    @PostMapping("/{pipelineId}")
-    public ResponseEntity<Void> create(@PathVariable long pipelineId) {
-        hotkeyService.addHotkey(pipelineId);
-        return ResponseEntity.ok().build();
+    @MessageMapping("/post-hotkey")
+    @SendTo(WebSocketConfig.UPDATED_CONFIGURATIONS_TOPIC)
+    public List<ConfigurationDto> updateSelectedWindow(CreateHotkeyDto request) {
+        hotkeyService.addHotkey(request.getPipelineId());
+        return configurationService.retrieveConfiguration();
     }
 
-    @PutMapping("/{id}/key/{keyIndex}")
-    public ResponseEntity<Void> updateHexValue(
-            @PathVariable long id,
-            @PathVariable int keyIndex, //0=first key, 1=second key
-            @RequestBody UpdateHexKeyCodeRequestDto body
-    ){
-        hotkeyService.updateHexKeyCode(id, keyIndex, body.getHexKeyCode());
-        return ResponseEntity.ok().build();
+    @MessageMapping("/put-hotkey-hex-key-code")
+    @SendTo(WebSocketConfig.UPDATED_CONFIGURATIONS_TOPIC)
+    public List<ConfigurationDto> updateHexKeyCode(UpdateHexKeyCodeRequestDto request) {
+        hotkeyService.updateHexKeyCode(request.getId(), request.getKeyIndex(), request.getHexKeyCode());
+        return configurationService.retrieveConfiguration();
     }
 
-    @PutMapping("/{id}/delay")
-    public ResponseEntity<Void> updateDelay(@PathVariable long id, @RequestBody UpdateHotkeyDelayRequestDto body){
-        hotkeyService.updateDelay(id, body.getDelayMs());
-        return ResponseEntity.ok().build();
+    @MessageMapping("/put-hotkey-delay")
+    @SendTo(WebSocketConfig.UPDATED_CONFIGURATIONS_TOPIC)
+    public List<ConfigurationDto> updateDelay(UpdateDelayRequestDto request) {
+        hotkeyService.updateDelay(request.getId(), request.getDelayMs());
+        return configurationService.retrieveConfiguration();
     }
 
-    @PutMapping("/{id}/active")
-    public ResponseEntity<Void> updateActive(@PathVariable long id, @RequestBody UpdateHotkeyActiveRequest body){
-        hotkeyService.updateActive(id, body.isActive());
-        return ResponseEntity.ok().build();
+    @MessageMapping("/put-hotkey-active")
+    @SendTo(WebSocketConfig.UPDATED_CONFIGURATIONS_TOPIC)
+    public List<ConfigurationDto> updateActive(UpdateActiveRequestDto request) {
+        hotkeyService.updateActive(request.getId(), request.isActive());
+        return configurationService.retrieveConfiguration();
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteHotKeys(@PathVariable long id){
-        hotkeyService.deleteById(id);
-        return ResponseEntity.ok().build();
+
+    @MessageMapping("/delete-hotkey")
+    @SendTo(WebSocketConfig.UPDATED_CONFIGURATIONS_TOPIC)
+    public List<ConfigurationDto> deleteHotkey(DeleteHotkeyDto request) {
+        hotkeyService.deleteById(request.getId());
+        return configurationService.retrieveConfiguration();
     }
 }

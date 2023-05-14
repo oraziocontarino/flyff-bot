@@ -1,4 +1,4 @@
-package flyffbot.dto;
+package flyffbot.dto.pipeline;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class UpdateSelectedWindowRequestDto {
-    private Long configurationId;
+public class WindowNameRowDto {
+    private String name;
     private String hwnd;
 }
