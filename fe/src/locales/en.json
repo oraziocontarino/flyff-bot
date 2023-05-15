@@ -21,30 +21,11 @@
     "removePipe": "Remove pipe"
   },
   "pipe": {
-    "title": "Pipe {{id}}",
+    "title": "Pipe {{i}}",
     "defaultHotkeys": {
       "title": "Default HotKeys",
       "pause": "Pause Pipe",
       "useCustomActionSlot": "Use Custom Action Slot"
-    },
-    "botStatus": {
-      "title": "Bot status",
-      "hotKeysLoop": {
-        "title": "HotKeys loop",
-        "status": {
-          "paused": "paused",
-          "idle": "idle",
-          "running": "running"
-        }
-      },
-      "customActionSlot": {
-        "title": "Custom Action Slot",
-        "status": {
-          "paused": "paused",
-          "idle": "idle",
-          "running": "running"
-        }
-      }
     },
     "selectWindowName": {
       "title": "Target Flyff window",

@@ -1,53 +1,47 @@
-import { Badge, Card } from "antd";
-import { useMemo } from "react";
+import { Card } from "antd";
 import { useTranslation } from "react-i18next";
-import FBCardTitle from "../common/CardTitle";
-import BotStatus from "./BotStatus";
+import { FBCardTitle } from "../common/CardTitle";
 import HotKeysLoop from "./HotKeysLoop";
 import DefaultHotKeys from "./DefaultHotKeys";
 import SelectWindowName from "./SelectWindowName";
 import CustomActionSlot from "./CustomActionSlot";
-import {
-  PauseCircleOutlined,
-} from '@ant-design/icons';
+import { useSelector } from "react-redux";
+import { selectors } from "../../api/slice";
+import { ActionStatus } from "../../api/types";
 
 interface PipeProps {
-  id:number
+  id: number;
+  i: number;
 }
 
-const Pipe:React.FC<PipeProps> = ({id}) => {
-  const {t} = useTranslation();
-
-  const configs = useMemo(()=>[
-    { class: 'fb-card-grid-item-100', component: <FBCardTitle title={t('pipe.title', {id})}/> },
-    { class: 'fb-card-grid-item-100', component: <SelectWindowName pipelineId={id}/> },
-    { class: 'fb-card-grid-item-50', component: <DefaultHotKeys pipelineId={id}/> },
-    { class: 'fb-card-grid-item-50', component: <BotStatus pipelineId={id} /> },
-    { class: 'fb-card-grid-item-100', component: <HotKeysLoop pipelineId={id} /> },
-    { class: 'fb-card-grid-item-100', component: <CustomActionSlot pipelineId={id} /> },
-  ], [id, t]);
-
-  const content = useMemo(()=> configs.map((config, i) => (
-    <Card.Grid
-      key={`pipe-${id}-feature-${i}`}
-      className={config.class}
-      hoverable={false}
-    >
-      {config.component}
-    </Card.Grid>
-  )), [configs, id]);
+const Pipe: React.FC<PipeProps> = ({ id, i }) => {
+  const { t } = useTranslation();
+  const pipelineData = useSelector(selectors.pipelineConfigurationSelector(id));
 
   return (
-    <Badge
-      count={<PauseCircleOutlined/>}
-      status={"processing"}
-    >
-      <Card className={"fb-card"}>
-        {content}
-      </Card>
-    </Badge>
+    <Card className={"fb-card"}>
+      <Card.Grid className={"fb-card-grid-item-100"} hoverable={false}>
+        <FBCardTitle
+          title={t("pipe.title", { i })}
+          status={
+            pipelineData?.paused ? ActionStatus.PAUSED : ActionStatus.RUNNING
+          }
+        />
+      </Card.Grid>
+      <Card.Grid className={"fb-card-grid-item-100"} hoverable={false}>
+        <SelectWindowName pipelineId={id} i={i} />
+      </Card.Grid>
+      <Card.Grid className={"fb-card-grid-item-100"} hoverable={false}>
+        <DefaultHotKeys pipelineId={id} i={i} />
+      </Card.Grid>
+      <Card.Grid className={"fb-card-grid-item-100"} hoverable={false}>
+        <HotKeysLoop pipelineId={id} i={i} />
+      </Card.Grid>
+      <Card.Grid className={"fb-card-grid-item-100"} hoverable={false}>
+        <CustomActionSlot pipelineId={id} i={i} />
+      </Card.Grid>
+    </Card>
   );
-}
+};
 
 export default Pipe;
-

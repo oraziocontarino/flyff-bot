@@ -1,53 +1,62 @@
 export type Configuration = {
-  pipeline: Pipeline,
+  pipeline: Pipeline;
   hotkeys: Hotkey[];
-  customActionSlots:CustomActionSlotItem[];
-}
+  customActionSlots: CustomActionSlotItem[];
+};
 
 export type Pipeline = {
   id: number;
-  selectedWindowHwnd: string;
-  selectedWindowName: string;
+  selectedWindowHwnd?: string;
+  selectedWindowName?: string;
   paused: boolean;
   customActionSlotRunning: boolean;
-}
+};
 
 export type Hotkey = {
-  id:number,
-  active:boolean,
-  delayMs:number,
-  hexKeyCode0:AuxCodes,
-  hexKeyCode1:KeyCodes,
-  lastTimeExecuted:number
-}
+  id: number;
+  active: boolean;
+  delayMs: number;
+  hexKeyCode0: AuxCodes;
+  hexKeyCode1: KeyCodes;
+  pipelineId: number;
+  lastTimeExecutedMs: number;
+  executing: boolean;
+};
 
 export enum AuxCodes {
-  CTRL = '0x11',
-  ALT = '0x12'
+  EMPTY = "",
+  CTRL = "0x11",
+  ALT = "0x12",
 }
 
 export enum KeyCodes {
-  ONE = '0x31',
-  TWO = '0x32',
-  THREE = '0x33',
-  FOUR = '0x34',
-  FIVE = '0x35',
-  SIX = '0x36',
-  SEVEN = '0x37',
-  EIGHT = '0x38',
-  NINE = '0x39',
-  ZERO = '0x30',
+  EMPTY = "",
+  ONE = "0x31",
+  TWO = "0x32",
+  THREE = "0x33",
+  FOUR = "0x34",
+  FIVE = "0x35",
+  SIX = "0x36",
+  SEVEN = "0x37",
+  EIGHT = "0x38",
+  NINE = "0x39",
+  ZERO = "0x30",
 }
 
 export type CustomActionSlotItem = {
-  id:number,
-  castTime:number,
-  hexKeyCode0:string,
-  hexKeyCode1:string,
-}
+  id: number;
+  castTime: number;
+  hexKeyCode0: string;
+  hexKeyCode1: string;
+};
 
 export type WindowItem = {
   title: string;
   hwnd: string;
-  isNull: boolean;
+};
+
+export enum ActionStatus {
+  INVISIBLE = "INVISIBLE",
+  RUNNING = "RUNNING",
+  PAUSED = "PAUSED",
 }
