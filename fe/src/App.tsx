@@ -1,6 +1,6 @@
 import React from "react";
 import { Layout, Row, Col } from "antd";
-import { Content, Footer } from "antd/es/layout/layout";
+import { Content } from "antd/es/layout/layout";
 import GlobalHotKeys from "./components/GlobalHotKeys";
 import "./App.css";
 import Pipe from "./components/Pipe";
@@ -13,8 +13,8 @@ const App: React.FC = () => {
   const pipelines = useSelector(selectors.pipelinesSelector);
 
   return (
-    <Layout style={{ height: "100vh" }}>
-      <Content>
+    <Layout className="height-100-vh">
+      <Content className="overflow-auto">
         <Row className="fb-padding-top fb-padding-left">
           <Col>
             <GlobalHotKeys />
@@ -31,7 +31,6 @@ const App: React.FC = () => {
           ))}
         </Row>
       </Content>
-      <Footer>Footer</Footer>
     </Layout>
   );
 };
