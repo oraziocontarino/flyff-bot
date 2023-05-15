@@ -1,6 +1,7 @@
 import { createSelector, createSlice } from '@reduxjs/toolkit';
 import { Configuration, WindowItem } from '../api/types';
 import { RootState } from '../store';
+import { deepEqual } from './utils';
 
 interface ConfigurationState {
   isConnected?:boolean;
@@ -21,51 +22,58 @@ const configurationSlice = createSlice({
       state.isConnected = args.payload.isConnected;
     },
     storeConfigurations: (state, args:{type:string, payload:Configuration[]}) => {
-      state.configurations = args.payload;
+      if(!deepEqual(state.configurations, args.payload)) {
+        state.configurations = args.payload;
+      }
     },
     storeWindowList: (state, args:{type:string, payload:WindowItem[]}) => {
-      state.windows = args.payload;
+      if(!deepEqual(state.windows, args.payload)) {
+        state.windows = args.payload;
+      }
     },
   },
 });
 
 const rootSelector = (state: RootState) => state.flyffBot;
 
-const isConnectedSelector = createSelector(rootSelector, (rootSelector) => (
-  rootSelector.isConnected
+const isConnectedSelector = createSelector(rootSelector, (state) => (
+  state.isConnected
 ));
 
-const windowsSelector = createSelector(rootSelector, (rootSelector) => (
-  rootSelector.windows
+const windowsSelector = createSelector(rootSelector, (state) => (
+  state.windows
 ));
 
-const configurationSelector = (pipelineId:number) =>  createSelector(rootSelector, (rootSelector) => (
-  rootSelector.configurations.find(item => item.pipeline.id === pipelineId)
+const configurationSelector = (pipelineId:number) =>  createSelector(rootSelector, (state) => (
+  state.configurations.find(item => item.pipeline.id === pipelineId)
 ));
 
-const pipelineConfigurationSelector = (pipelineId:number) => createSelector(rootSelector, (rootSelector) => (
-  rootSelector.configurations.find(item => item.pipeline.id === pipelineId)?.pipeline
+const pipelineConfigurationSelector = (pipelineId:number) => createSelector(rootSelector, (state) => (
+  state.configurations.find(item => item.pipeline.id === pipelineId)?.pipeline
 ));
 
-const hotkeysConfigurationSelector = (pipelineId:number) => createSelector(rootSelector, (rootSelector) => (
-  rootSelector.configurations.find(item => item.pipeline.id === pipelineId)?.hotkeys
+const hotkeysConfigurationSelector = (pipelineId:number) => createSelector(rootSelector, (state) => (
+  state.configurations.find(item => item.pipeline.id === pipelineId)?.hotkeys
 ));
 
-const customActionSlotsConfigurationSelector = (pipelineId:number) => createSelector(rootSelector, (rootSelector) => (
-  rootSelector.configurations.find(item => item.pipeline.id === pipelineId)?.customActionSlots
+const customActionSlotsConfigurationSelector = (pipelineId:number) => createSelector(rootSelector, (state) => (
+  state.configurations.find(item => item.pipeline.id === pipelineId)?.customActionSlots
 ));
 
-const isSelectedAndNotExistsSelector = (pipelineId:number) => createSelector(
+const isSelectedAndExistsSelector = (pipelineId:number) => createSelector(
   pipelineConfigurationSelector(pipelineId),
   windowsSelector,
-  (pipelineSelector, windowsSelector) => (
-    pipelineSelector?.selectedWindowHwnd && !windowsSelector.some(item => item.hwnd === pipelineSelector?.selectedWindowHwnd)
-  )
+  (pipeline, windows) => {
+    const selectedHwnd = pipeline?.selectedWindowHwnd;
+    const exists = windows.some(item => item.hwnd === selectedHwnd);
+    //console.log("@@@ debug auto deselect: ["+pipeline?.id+"]", {selectedHwnd, exists, windows});
+    return selectedHwnd != null && exists;
+  }
 );
 
 const customActionSlotCountSelector = (pipelineId:number) => createSelector(
   customActionSlotsConfigurationSelector(pipelineId),
-  (customActionSlotSelector) => customActionSlotSelector?.length ?? 0
+  (customActionSlots) => customActionSlots?.length ?? 0
 );
 
 const customActionSlotStatusSelector = (pipelineId:number) => createSelector(
@@ -87,7 +95,7 @@ export const selectors = {
   pipelineConfigurationSelector,
   hotkeysConfigurationSelector,
   customActionSlotsConfigurationSelector,
-  isSelectedAndNotExistsSelector,
+  isSelectedAndExistsSelector,
   customActionSlotCountSelector,
   customActionSlotStatusSelector
 }

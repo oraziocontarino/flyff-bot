@@ -11,7 +11,7 @@ const SelectWindowName:React.FC<FBFeature> = ({pipelineId}) => {
   const {t} = useTranslation();
   const pipelineConfiguration = useSelector(selectors.pipelineConfigurationSelector(pipelineId));
   const windowList = useSelector(selectors.windowsSelector);
-  const isSelectedAndNotExists = useSelector(selectors.isSelectedAndNotExistsSelector(pipelineId));
+  const isSelectedAndExists = useSelector(selectors.isSelectedAndExistsSelector(pipelineId));
 
   const selectedWindowHwnd = useMemo(()=> (
     pipelineConfiguration?.selectedWindowHwnd
@@ -24,12 +24,12 @@ const SelectWindowName:React.FC<FBFeature> = ({pipelineId}) => {
   ), [windowList]);
 
   useEffect(() => {
-    if(isSelectedAndNotExists) {
+    if(isSelectedAndExists) {
       // Nothing to unselect, it's already undefined!
       return;
     }
     updateSelectedWindow({pipelineId, hwnd: undefined});
-  }, [pipelineId, isSelectedAndNotExists, updateSelectedWindow]);
+  }, [pipelineId, isSelectedAndExists, updateSelectedWindow]);
 
   return (
     <>
