@@ -17,7 +17,8 @@
     "status": {
       "paused": "Pipe {{i}} is paused!<br/>Resume it via {{shortcut}}",
       "running": "Pipe {{i}} is running!"
-    }
+    },
+    "nohwnd": "Feature locked. Select Target Flyff window to unlock it!"
   },
   "globalHotKeys": {
     "title": "Global HotKeys",

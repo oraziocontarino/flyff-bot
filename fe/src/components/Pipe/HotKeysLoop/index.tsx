@@ -16,6 +16,7 @@ import {
   useDeleteHotkey,
 } from "../../../api/hooks/hotkeys";
 import { useStatusTitles } from "../../common/hooks";
+import { OverlayWrapper } from "../../common/OverlayWrapper";
 
 const HotKeysLoop: React.FC<FBFeature> = ({ pipelineId, i }) => {
   const { t } = useTranslation();
@@ -94,17 +95,20 @@ const HotKeysLoop: React.FC<FBFeature> = ({ pipelineId, i }) => {
             title={t("pipe.hotKeysLoop.title")}
             statusIcon={status}
             statusTitles={titles}
+            i={i}
           />
         }
         key="1"
         className="fb-collapse-padding-0 fb-card-title"
       >
-        <Table
-          columns={columns}
-          dataSource={hotkeysConfiguration}
-          size="small"
-          pagination={false}
-        />
+        <OverlayWrapper i={i + 1}>
+          <Table
+            columns={columns}
+            dataSource={hotkeysConfiguration}
+            size="small"
+            pagination={false}
+          />
+        </OverlayWrapper>
       </Collapse.Panel>
     </Collapse>
   );

@@ -30,6 +30,7 @@ const Pipe: React.FC<PipeProps> = ({ id, i }) => {
             pipelineData?.paused ? ActionStatus.PAUSED : ActionStatus.RUNNING
           }
           statusTitles={titles}
+          i={i}
         />
       </Card.Grid>
       <Card.Grid className={"fb-card-grid-item-100"} hoverable={false}>

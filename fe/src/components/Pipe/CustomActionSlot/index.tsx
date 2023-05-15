@@ -15,6 +15,7 @@ import {
 } from "../../../api/hooks/customActionSlots";
 import { FBCardTitle } from "../../common/CardTitle";
 import { useStatusTitles } from "../../common/hooks";
+import { OverlayWrapper } from "../../common/OverlayWrapper";
 
 const CustomActionSlot: React.FC<FBFeature> = ({ pipelineId, i }) => {
   const { t } = useTranslation();
@@ -163,17 +164,20 @@ const CustomActionSlot: React.FC<FBFeature> = ({ pipelineId, i }) => {
             })}
             statusIcon={customActionSlotStatus}
             statusTitles={titles}
+            i={i}
           />
         }
         key="1"
         className="fb-collapse-padding-0 fb-card-title"
       >
-        <Table
-          columns={columns}
-          dataSource={customActionSlotsConfiguration}
-          size="small"
-          pagination={false}
-        />
+        <OverlayWrapper i={i + 1}>
+          <Table
+            columns={columns}
+            dataSource={customActionSlotsConfiguration}
+            size="small"
+            pagination={false}
+          />
+        </OverlayWrapper>
       </Collapse.Panel>
     </Collapse>
   );

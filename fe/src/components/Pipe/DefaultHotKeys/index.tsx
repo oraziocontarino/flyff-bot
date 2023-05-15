@@ -5,6 +5,7 @@ import {
   useCustomActionSlotLabel,
   usePausePipeShortcutLabel,
 } from "../../common/hooks";
+import { OverlayWrapper } from "../../common/OverlayWrapper";
 import { FBFeature } from "../../common/types";
 
 const DefaultHotKeys: React.FC<FBFeature> = ({ i }) => {
@@ -17,14 +18,18 @@ const DefaultHotKeys: React.FC<FBFeature> = ({ i }) => {
   return (
     <>
       <FBCardTitle title={t("pipe.defaultHotkeys.title")} />
-      <Descriptions size={"small"}>
-        <Descriptions.Item label={t("pipe.defaultHotkeys.pause")}>
-          {pauseShortcutLabel}
-        </Descriptions.Item>
-        <Descriptions.Item label={t("pipe.defaultHotkeys.useCustomActionSlot")}>
-          {customActionSlotLabel}
-        </Descriptions.Item>
-      </Descriptions>
+      <OverlayWrapper i={i + 1}>
+        <Descriptions size={"small"}>
+          <Descriptions.Item label={t("pipe.defaultHotkeys.pause")}>
+            {pauseShortcutLabel}
+          </Descriptions.Item>
+          <Descriptions.Item
+            label={t("pipe.defaultHotkeys.useCustomActionSlot")}
+          >
+            {customActionSlotLabel}
+          </Descriptions.Item>
+        </Descriptions>
+      </OverlayWrapper>
     </>
   );
 };
