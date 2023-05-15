@@ -1,19 +1,28 @@
 import { Descriptions } from "antd";
 import { useTranslation } from "react-i18next";
 import { FBCardTitle } from "../../common/CardTitle";
+import {
+  useCustomActionSlotLabel,
+  usePausePipeShortcutLabel,
+} from "../../common/hooks";
 import { FBFeature } from "../../common/types";
 
-const DefaultHotKeys: React.FC<FBFeature> = ({ pipelineId, i }) => {
+const DefaultHotKeys: React.FC<FBFeature> = ({ i }) => {
   const { t } = useTranslation();
+
+  const pauseShortcutLabel = usePausePipeShortcutLabel(i);
+
+  const customActionSlotLabel = useCustomActionSlotLabel(i);
+
   return (
     <>
       <FBCardTitle title={t("pipe.defaultHotkeys.title")} />
       <Descriptions size={"small"}>
         <Descriptions.Item label={t("pipe.defaultHotkeys.pause")}>
-          Shift + {i + (i + 1)}
+          {pauseShortcutLabel}
         </Descriptions.Item>
         <Descriptions.Item label={t("pipe.defaultHotkeys.useCustomActionSlot")}>
-          Shift + {i + (i + 2)}
+          {customActionSlotLabel}
         </Descriptions.Item>
       </Descriptions>
     </>

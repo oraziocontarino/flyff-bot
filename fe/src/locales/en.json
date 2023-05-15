@@ -13,6 +13,10 @@
       "0x37": "7",
       "0x38": "8",
       "0x39": "9"
+    },
+    "status": {
+      "paused": "Pipe {{i}} is paused!<br/>Resume it via {{shortcut}}",
+      "running": "Pipe {{i}} is running!"
     }
   },
   "globalHotKeys": {

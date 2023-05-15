@@ -15,8 +15,9 @@ import {
   useUpdateHotkeyActive,
   useDeleteHotkey,
 } from "../../../api/hooks/hotkeys";
+import { useStatusTitles } from "../../common/hooks";
 
-const HotKeysLoop: React.FC<FBFeature> = ({ pipelineId }) => {
+const HotKeysLoop: React.FC<FBFeature> = ({ pipelineId, i }) => {
   const { t } = useTranslation();
   const hotkeysConfiguration = useSelector(
     selectors.hotkeysConfigurationSelector(pipelineId)
@@ -83,11 +84,17 @@ const HotKeysLoop: React.FC<FBFeature> = ({ pipelineId }) => {
     [addHotkey, pipelineId, deleteHotkey, t, updateActive, updateDelay]
   );
 
+  const titles = useStatusTitles(i);
+
   return (
     <Collapse ghost defaultActiveKey={"1"}>
       <Collapse.Panel
         header={
-          <FBCardTitle title={t("pipe.hotKeysLoop.title")} status={status} />
+          <FBCardTitle
+            title={t("pipe.hotKeysLoop.title")}
+            statusIcon={status}
+            statusTitles={titles}
+          />
         }
         key="1"
         className="fb-collapse-padding-0 fb-card-title"

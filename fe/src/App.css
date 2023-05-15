@@ -1,5 +1,5 @@
 .fb-card {
-  width: 500px
+  width: 500px;
 }
 
 .fb-card-grid-item-100 {
@@ -17,10 +17,10 @@
 }
 
 .fb-padding-top {
-  padding-top: 8px !important
+  padding-top: 8px !important;
 }
 .fb-padding-left {
-  padding-left: 8px !important
+  padding-left: 8px !important;
 }
 
 .fb-card-title {
@@ -38,4 +38,12 @@
 }
 .fb-collapse-padding-0 > .ant-collapse-content > .ant-collapse-content-box {
   padding: 0px !important;
+}
+
+.color-red-5 {
+  color: #ff4e4f;
+}
+
+.color-blue-5 {
+  color: #4096ff;
 }

@@ -45,7 +45,7 @@ export enum KeyCodes {
 
 export type CustomActionSlotItem = {
   id: number;
-  castTime: number;
+  castTimeMs: number;
   hexKeyCode0: string;
   hexKeyCode1: string;
 };

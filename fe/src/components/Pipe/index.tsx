@@ -8,6 +8,7 @@ import CustomActionSlot from "./CustomActionSlot";
 import { useSelector } from "react-redux";
 import { selectors } from "../../api/slice";
 import { ActionStatus } from "../../api/types";
+import { useStatusTitles } from "../common/hooks";
 
 interface PipeProps {
   id: number;
@@ -18,14 +19,17 @@ const Pipe: React.FC<PipeProps> = ({ id, i }) => {
   const { t } = useTranslation();
   const pipelineData = useSelector(selectors.pipelineConfigurationSelector(id));
 
+  const titles = useStatusTitles(i);
+
   return (
     <Card className={"fb-card"}>
       <Card.Grid className={"fb-card-grid-item-100"} hoverable={false}>
         <FBCardTitle
           title={t("pipe.title", { i })}
-          status={
+          statusIcon={
             pipelineData?.paused ? ActionStatus.PAUSED : ActionStatus.RUNNING
           }
+          statusTitles={titles}
         />
       </Card.Grid>
       <Card.Grid className={"fb-card-grid-item-100"} hoverable={false}>

@@ -14,8 +14,9 @@ import {
   useDeleteCustomActionSlot,
 } from "../../../api/hooks/customActionSlots";
 import { FBCardTitle } from "../../common/CardTitle";
+import { useStatusTitles } from "../../common/hooks";
 
-const CustomActionSlot: React.FC<FBFeature> = ({ pipelineId }) => {
+const CustomActionSlot: React.FC<FBFeature> = ({ pipelineId, i }) => {
   const { t } = useTranslation();
   const customActionSlotsConfiguration = useSelector(
     selectors.customActionSlotsConfigurationSelector(pipelineId)
@@ -103,11 +104,11 @@ const CustomActionSlot: React.FC<FBFeature> = ({ pipelineId }) => {
       },
       {
         title: t("pipe.customActionSlot.castTimeMs"),
-        key: "delayMs",
+        key: "castTimeMs",
         width: 210,
         render: (_, item) => (
           <InputNumber
-            value={item.castTime}
+            value={item.castTimeMs}
             addonAfter={"ms"}
             onChange={(castTimeMs) =>
               updateCustomActionSlotCastTime({
@@ -150,6 +151,8 @@ const CustomActionSlot: React.FC<FBFeature> = ({ pipelineId }) => {
     ]
   );
 
+  const titles = useStatusTitles(i);
+
   return (
     <Collapse ghost>
       <Collapse.Panel
@@ -158,7 +161,8 @@ const CustomActionSlot: React.FC<FBFeature> = ({ pipelineId }) => {
             title={t("pipe.customActionSlot.title", {
               count: customActionSlotCount,
             })}
-            status={customActionSlotStatus}
+            statusIcon={customActionSlotStatus}
+            statusTitles={titles}
           />
         }
         key="1"
