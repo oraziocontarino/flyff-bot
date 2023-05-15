@@ -25,7 +25,7 @@ public class ConfigurationServiceImpl {
                 ConfigurationDto.builder()
                         .pipeline(pipe)
                         .hotkeys(hotkeyService.findByPipelineId(pipe.getId()))
-                        .customActionSlotEntities(customActionSlotService.findByPipelineId(pipe.getId()))
+                        .customActionSlots(customActionSlotService.findByPipelineId(pipe.getId()))
                         .build()
         ).collect(Collectors.toList());
     }

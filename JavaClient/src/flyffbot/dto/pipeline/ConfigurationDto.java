@@ -17,5 +17,5 @@ import java.util.List;
 public class ConfigurationDto {
     private PipelineEntity pipeline;
     private List<HotkeyEntity> hotkeys;
-    private List<CustomActionSlotEntity> customActionSlotEntities;
+    private List<CustomActionSlotEntity> customActionSlots;
 }
