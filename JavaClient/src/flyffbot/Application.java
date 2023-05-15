@@ -51,7 +51,6 @@ public class Application {
 
     @EventListener(ApplicationReadyEvent.class)
     public void afterSpringBootStartUp() {
-        LogManager.getLogger(HQLQueryPlan.class);
         log.info("Native API - Initializing...");
         initNativeApi();
         log.info("Native API - Initialization completed!");

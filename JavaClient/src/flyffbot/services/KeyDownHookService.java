@@ -91,7 +91,7 @@ public class KeyDownHookService implements NativeKeyListener {
 	}
 
 	@Override
-	public void nativeKeyTyped(NativeKeyEvent e) {	
+	public void nativeKeyTyped(NativeKeyEvent e) {
 	}
 
 	public void addKeyBinding(Long pipeId, int pipeIndex){

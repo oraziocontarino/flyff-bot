@@ -30,7 +30,6 @@ public class PipelineServiceImpl {
     }
 
     public void saveSelectedWindowHwnd(Long pipelineId, String selectedWindowHwnd) {
-        log.debug("update selected window {} {}", pipelineId, selectedWindowHwnd);
         repository.updateSelectedWindowHwndById(pipelineId, selectedWindowHwnd);
     }
 
@@ -54,5 +53,9 @@ public class PipelineServiceImpl {
 
     public PipelineEntity addNewPipe() {
         return repository.save(PipelineEntity.builder().build());
+    }
+
+    public void updateCustomActionSlotRunning(long id, boolean isRunning) {
+        repository.updateCustomActionSlotRunningById(id, isRunning);
     }
 }

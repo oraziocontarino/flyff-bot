@@ -37,10 +37,15 @@ public class EventsServiceImpl {
     @Autowired
     private ScheduledExecutorService executorService;
 
+    @Autowired
+    private SocketMessageSenderServiceImpl socketMessageSenderService;
+
+    @Autowired
+    private KeyDownHookService keyDownHookService;
     private AtomicReference<Map<Long, ScheduledFuture<?>>> scheduledTasks;
 
     @PostConstruct
-    private void postContruct(){
+    private void postConstruct(){
         scheduledTasks = new AtomicReference<>(new HashMap<>());
     }
     public void scheduleSingleHotkey(HotkeyEntity entity) {
@@ -74,7 +79,8 @@ public class EventsServiceImpl {
         if(pipeline.isCustomActionSlotRunning()){
             return;
         }
-        pipeline.setCustomActionSlotRunning(true);
+        pipelineService.updateCustomActionSlotRunning(pipelineId, true);
+        socketMessageSenderService.sendUpdatedConfiguration();
         val actions = customActionSlotService.findByPipelineId(pipelineId);
         val hwnd = pipeline.getSelectedWindowHwnd();
         for(val cas : actions){
@@ -83,19 +89,16 @@ public class EventsServiceImpl {
                     .collect(Collectors.toList());
 
             nativeSendKeyService.execute(KeyStatus.DOWN, hwnd, keys);
-
-            safeSleep(500, "Error occurred while releasing key for custom action slot" + cas);
-
             nativeSendKeyService.execute(KeyStatus.UP, hwnd, keys);
-
             safeSleep(cas.getCastTimeMs(), "Error occurred while waiting cast time for custom action slot" + cas);
         }
-        pipeline.setCustomActionSlotRunning(false);
+        pipelineService.updateCustomActionSlotRunning(pipelineId, false);
+        socketMessageSenderService.sendUpdatedConfiguration();
     }
 
     private void safeSleep(long time, String error){
         try {
-            Thread.sleep(500);
+            Thread.sleep(time);
         } catch (InterruptedException e){
             log.error(error, e);
         }
@@ -104,5 +107,10 @@ public class EventsServiceImpl {
     public void initHotkeysScheduler() {
         pipelineService.pauseAll();
         hotkeyService.findAllActive().forEach(this::scheduleSingleHotkey);
+
+        val pipelines = pipelineService.findAllPipes();
+        for(int i = 0; i < pipelines.size(); i++) {
+            keyDownHookService.addKeyBinding(pipelines.get(i).getId(), i);
+        }
     }
 }

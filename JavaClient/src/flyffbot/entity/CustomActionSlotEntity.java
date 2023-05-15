@@ -24,8 +24,4 @@ public class CustomActionSlotEntity {
     private long castTimeMs;
     private long pipelineId;
     private long lastTimeExecutedMs;
-
-//    @ManyToOne(fetch = FetchType.LAZY)
-//    @JoinColumn(name = "pipelineId", referencedColumnName = "id", insertable = false, updatable = false)
-//    private PipelineEntity pipeline;
 }
