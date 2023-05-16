@@ -1,24 +1,21 @@
-import webview
-import subprocess
+
 import threading
+import time
+from ServerUtils import isServerReady, runServer, SERVER_URL
+from ClientUtils import runUi
 
-
-def runServer():
-    subprocess.call(['java', '-jar', 'LocalServer.jar'])
-
-
-def runUi():
-    webview.create_window(
-        'FlyffBot',
-        'http://localhost:8899',
-        width=1050,
-        height=650,
-        resizable=False
-    )
-    webview.start()
+def runPeriodicCheck(window):
+    for x in range(10):
+        if isServerReady():
+            window.load_url(SERVER_URL)
+            return
+        else:
+            time.sleep(1)
+    window.destroy()
+    print("Periodic check completed!")
 
 
 serverThread = threading.Thread(target=runServer)
-
 serverThread.start()
-runUi()
+runUi(runPeriodicCheck)
+print("App terminated!")
