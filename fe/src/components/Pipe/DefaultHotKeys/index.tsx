@@ -8,7 +8,7 @@ import {
 import { OverlayWrapper } from "../../common/OverlayWrapper";
 import { FBFeature } from "../../common/types";
 
-const DefaultHotKeys: React.FC<FBFeature> = ({ i }) => {
+const DefaultHotKeys: React.FC<FBFeature> = ({ pipelineId, i }) => {
   const { t } = useTranslation();
 
   const pauseShortcutLabel = usePausePipeShortcutLabel(i);
@@ -18,7 +18,7 @@ const DefaultHotKeys: React.FC<FBFeature> = ({ i }) => {
   return (
     <>
       <FBCardTitle title={t("pipe.defaultHotkeys.title")} />
-      <OverlayWrapper i={i + 1}>
+      <OverlayWrapper pipelineId={pipelineId}>
         <Descriptions size={"small"}>
           <Descriptions.Item label={t("pipe.defaultHotkeys.pause")}>
             {pauseShortcutLabel}

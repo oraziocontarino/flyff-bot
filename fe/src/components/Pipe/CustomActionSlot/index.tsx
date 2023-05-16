@@ -170,7 +170,7 @@ const CustomActionSlot: React.FC<FBFeature> = ({ pipelineId, i }) => {
         key="1"
         className="fb-collapse-padding-0 fb-card-title"
       >
-        <OverlayWrapper i={i + 1}>
+        <OverlayWrapper pipelineId={pipelineId}>
           <Table
             columns={columns}
             dataSource={customActionSlotsConfiguration}

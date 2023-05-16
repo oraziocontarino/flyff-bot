@@ -1,16 +1,26 @@
 import { Col, Row } from "antd";
 import { useTranslation } from "react-i18next";
+import { useSelector } from "react-redux";
+import { selectors } from "../../api/slice";
 
 type OverlayWrapperProps = {
   children?: JSX.Element;
-  i: number;
+  pipelineId: number;
 };
 
 export const OverlayWrapper: React.FC<OverlayWrapperProps> = ({
   children,
-  i,
+  pipelineId,
 }) => {
   const { t } = useTranslation();
+  const isHwndValid = useSelector(
+    selectors.isSelectedAndExistsSelector(pipelineId)
+  );
+
+  if (isHwndValid) {
+    return <>{children}</>;
+  }
+
   return (
     <div className="fb-overlay-wrapper">
       <div className="fb-overlay-content">
