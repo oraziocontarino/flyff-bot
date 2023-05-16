@@ -81,6 +81,8 @@
 	</dependencies>
 	<build>
 		<sourceDirectory>src</sourceDirectory>
+		<finalName>LocalServer</finalName>
+		<directory>../release/server</directory>
 		<plugins>
 			<plugin>
 				<groupId>org.springframework.boot</groupId>

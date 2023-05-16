@@ -13,4 +13,8 @@ public class WindowItem {
     private String title;
     private String hwnd;
     private boolean isNull;
+
+    public void setIsNull(boolean value) {
+        this.isNull = value;
+    }
 }
