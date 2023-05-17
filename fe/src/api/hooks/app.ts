@@ -82,20 +82,6 @@ export const useInitSocket = () => {
   }, [isConnected, requestConfiguration]);
 
   useEffect(() => {
-    const handleTabClose = (event: Event) => {
-      event.preventDefault();
-
-      sendMessage(SendTopic.GONE_CLIENT_CLOSED);
-    };
-
-    window.addEventListener("beforeunload", handleTabClose);
-
-    return () => {
-      window.removeEventListener("beforeunload", handleTabClose);
-    };
-  }, []);
-
-  useEffect(() => {
     // Store to redux to share value to other components
     dispatch(FlyffBotActions.storeConnectionSatus({ isConnected }));
   }, [dispatch, isConnected]);
