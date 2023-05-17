@@ -2,3 +2,4 @@
 cd ..
 md release
 move /Y .\fe-webview\dist\FlyffBot.exe .\release
+cd .\fe-webview

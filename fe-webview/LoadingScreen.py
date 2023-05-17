@@ -12,27 +12,19 @@ screen = """
       }
       .lds-dual-ring {
         display: inline-block;
-        width: 80px;
-        height: 80px;
+        width: 160px;
+        height: 160px;
       }
       .lds-dual-ring:after {
         content: ' ';
         display: block;
-        width: 64px;
-        height: 64px;
-        margin: 8px;
+        width: 128px;
+        height: 128px;
+        margin: 16px;
         border-radius: 50%;
-        border: 6px solid #fff;
+        border: 12px solid #fff;
         border-color: #4096ff transparent #4096ff transparent;
         animation: lds-dual-ring 1.2s linear infinite;
-      }
-      @keyframes lds-dual-ring {
-        0% {
-          transform: rotate(0deg);
-        }
-        100% {
-          transform: rotate(360deg);
-        }
       }
 
       .wrapper {
@@ -44,20 +36,11 @@ screen = """
         align-items: center;
       }
 
-      .size-4 {
-        width: 4px;
-      }
-
       .info {
         display: flex;
         flex-direction: column;
       }
 
-      .spinner-wrapper {
-        display: flex;
-        flex-direction: row;
-        justify-content: space-around;
-      }
       .spinner-wrapper > div {
         display: flex;
         flex-direction: row;
@@ -65,22 +48,83 @@ screen = """
 
       .spinner-steps {
         display: flex;
-        flex-direction: row;
-        justify-content: center;
+        flex-direction: column;
+        justify-content: space-around;
+        text-align: center;
+        height: 100%;
         padding-top: 8px;
+        padding-left: 24px;
+      }
+
+      .aaa {
+        animation: spinner-pulse-text 1.2s linear infinite;
+      }
+
+      .fb-card-title {
+        color: rgba(0, 0, 0, 0.88);
+        font-weight: 600;
+        font-size: 16px;
+      }
+
+      .with-text-wrapper {
+        position: relative;
+      }
+
+      .with-text-content {
+        position: absolute;
+        height: 100%;
+        width: 100%;
+      }
+
+      .loading-text {
+        color: #003eb3;
+      }
+
+      .loading-text:after {
+        content: ' .';
+        animation: dots 1s steps(5, end) infinite;
+      }
+
+      @keyframes lds-dual-ring {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+
+      @keyframes dots {
+        0%,
+        20% {
+          color: #003eb300;
+          text-shadow: 0.25em 0 0 #003eb300, 0.5em 0 0 #003eb300;
+        }
+        40% {
+          color: #003eb3;
+          text-shadow: 0.25em 0 0 #003eb300, 0.5em 0 0 #003eb300;
+        }
+        60% {
+          text-shadow: 0.25em 0 0 #003eb3, 0.5em 0 0 #003eb300;
+        }
+        80%,
+        100% {
+          text-shadow: 0.25em 0 0 #003eb3, 0.5em 0 0 #003eb3;
+        }
       }
     </style>
   </head>
+
   <body class='antd-gray-3'>
     <div class='wrapper'>
       <div class='info'>
-        <div class='spinner-wrapper'>
-          <div>
-            <div class='lds-dual-ring'></div>
-            <div class='size-4'>&nbsp;</div>
+        <div class='lds-dual-ring with-text-wrapper'>
+          <div class='with-text-content'>
+            <div class='spinner-steps fb-card-title'>
+              <div class='loading-text'>Initializing</div>
+            </div>
           </div>
         </div>
-        <div class='spinner-steps'>Initializing...</div>
       </div>
     </div>
   </body>

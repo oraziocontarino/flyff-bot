@@ -1,4 +1,3 @@
-import threading
 import time
 from ServerUtils import isServerReady, deployServer, SERVER_URL
 from ClientUtils import runUi
@@ -19,5 +18,6 @@ localServerProcess = deployServer()
 print("--- Starting web view...")
 runUi(runPeriodicCheck)
 print("--- Terminating local server...")
-localServerProcess.kill()
+localServerProcess.terminate()
+localServerProcess.wait(5)
 print("--- App terminated!")
