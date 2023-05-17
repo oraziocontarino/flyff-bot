@@ -1,9 +1,10 @@
+screen = """
 <!DOCTYPE html>
-<html lang="en">
+<html lang='en'>
   <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="theme-color" content="#000000" />
+    <meta charset='utf-8' />
+    <meta name='viewport' content='width=device-width, initial-scale=1' />
+    <meta name='theme-color' content='#000000' />
     <title>FlyffBot</title>
     <style>
       .antd-gray-3 {
@@ -15,7 +16,7 @@
         height: 80px;
       }
       .lds-dual-ring:after {
-        content: " ";
+        content: ' ';
         display: block;
         width: 64px;
         height: 64px;
@@ -70,17 +71,18 @@
       }
     </style>
   </head>
-  <body class="antd-gray-3">
-    <div class="wrapper">
-      <div class="info">
-        <div class="spinner-wrapper">
+  <body class='antd-gray-3'>
+    <div class='wrapper'>
+      <div class='info'>
+        <div class='spinner-wrapper'>
           <div>
-            <div class="lds-dual-ring"></div>
-            <div class="size-4">&nbsp;</div>
+            <div class='lds-dual-ring'></div>
+            <div class='size-4'>&nbsp;</div>
           </div>
         </div>
-        <div class="spinner-steps">Initializing...</div>
+        <div class='spinner-steps'>Initializing...</div>
       </div>
     </div>
   </body>
 </html>
+"""

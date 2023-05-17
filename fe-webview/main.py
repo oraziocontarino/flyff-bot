@@ -1,7 +1,6 @@
-
 import threading
 import time
-from ServerUtils import isServerReady, runServer, SERVER_URL
+from ServerUtils import isServerReady, deployServer, SERVER_URL
 from ClientUtils import runUi
 
 def runPeriodicCheck(window):
@@ -12,10 +11,13 @@ def runPeriodicCheck(window):
         else:
             time.sleep(1)
     window.destroy()
-    print("Periodic check completed!")
+    print("--- Periodic check completed!")
 
 
-serverThread = threading.Thread(target=runServer)
-serverThread.start()
+print("--- Starting local server...")
+localServerProcess = deployServer()
+print("--- Starting web view...")
 runUi(runPeriodicCheck)
-print("App terminated!")
+print("--- Terminating local server...")
+localServerProcess.kill()
+print("--- App terminated!")

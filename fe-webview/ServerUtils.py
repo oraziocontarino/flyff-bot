@@ -1,11 +1,12 @@
 import subprocess
 import requests
+from multiprocessing import Process
 
 SERVER_URL = 'http://localhost:8899'
 
-def runServer():
-    subprocess.call(['java', '-jar', './server/LocalServer.jar'])
-    print("LocalServer Process Terminated!")
+
+def deployServer():
+    return subprocess.Popen(['java', '-jar', './server/LocalServer.jar'])
 
 def isServerReady():
     try:
@@ -16,4 +17,3 @@ def isServerReady():
             return False
     except requests.exceptions.RequestException as e:
         return False
-    print("isServerReady Process Terminated!")
