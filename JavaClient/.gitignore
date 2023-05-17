@@ -1,7 +1,7 @@
 resources/static
 flyff-bot-cfg
 demo.mv.db
-
+demo.trace.db
 
 # Maven
 log/

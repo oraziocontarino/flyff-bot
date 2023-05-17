@@ -16,10 +16,4 @@ public class ActuatorController {
     public ResponseEntity<Boolean> healthCheck() {
         return ResponseEntity.ok().build();
     }
-
-    @MessageMapping("/gone-client-closed")
-    public void close() {
-        log.info("Closing application... Client gone");
-        System.exit(0);
-    }
 }
