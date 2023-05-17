@@ -27,8 +27,6 @@ export enum SendTopic {
   GET_CONFIGURATIONS = "/get-configuration",
   GET_WINDOW_LIST = "/get-configuration",
   PUT_SELECTED_WINDOW = "/put-selected-window",
-
-  GONE_CLIENT_CLOSED = "/gone-client-closed",
 }
 
 export enum ReceiveTopic {
