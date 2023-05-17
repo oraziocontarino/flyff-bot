@@ -9,7 +9,7 @@ call mvn clean compile package install
 cd ..
 
 cd fe-webview
-.\build.bat
+call .\build.bat
 
 cd ..
 pause
