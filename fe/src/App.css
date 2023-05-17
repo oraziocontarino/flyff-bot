@@ -74,3 +74,27 @@
   opacity: 0.8;
   font-weight: 600;
 }
+
+.fb-footer {
+  padding: 8px;
+  padding-bottom: 0px;
+}
+
+.fb-footer-button {
+  border-bottom-left-radius: 0px;
+  border-bottom-right-radius: 0px;
+}
+
+.stack-vertical {
+  display: flex;
+  flex-direction: column;
+}
+
+.stack-justify-space-around {
+  justify-content: space-around;
+}
+
+.stack-horizontal {
+  display: flex;
+  flex-direction: row;
+}

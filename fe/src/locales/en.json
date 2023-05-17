@@ -53,5 +53,17 @@
         "placeholder": "..."
       }
     }
+  },
+  "tabs": {
+    "pipelines": {
+      "title": "Pipelines"
+    },
+    "help": {
+      "title": "Tutorials",
+      "readyToGo": "Ready to go",
+      "addRemovePipe": "How to add or remove a pipeline?",
+      "hotkeysLoop": "How to use Hotkeys loop?",
+      "customActionSlot": "How to use Custom Action Slot?"
+    }
   }
 }
