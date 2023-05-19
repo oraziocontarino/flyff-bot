@@ -65,6 +65,7 @@ function subscribe<T>(topic: ReceiveTopic, callback: (response: T) => void) {
     stompClient.subscribe(`/topic${topic}`, (socketResponse) => {
       callback(JSON.parse(socketResponse.body));
     });
+    return;
   }
 
   switch (topic) {
