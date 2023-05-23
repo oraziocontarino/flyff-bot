@@ -159,7 +159,7 @@ public class KeyDownHookService implements NativeKeyListener {
 				switch (item.getEvent()) {
 					case ADD_PIPE ->
 							pipelineService.addNewPipe().ifPresent(pipe -> {
-								val index = pipelineService.findIndex(pipe.getId());
+								val index = pipelineService.count() - 1;
 								addKeyBinding(pipe.getId(), index);
 							});
 					case REMOVE_PIPE -> {

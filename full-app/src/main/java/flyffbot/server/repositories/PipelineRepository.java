@@ -13,9 +13,6 @@ public interface PipelineRepository extends CrudRepository<PipelineEntity, Long>
     @Query("UPDATE pipeline SET selectedWindowHwnd = :selectedWindowHwnd where id = :id")
     void updateSelectedWindowHwndById(@Param("id") Long id, @Param("selectedWindowHwnd") String selectedWindowHwnd);
 
-    @Query("SELECT 1 from pipeline where id = :id")
-    int findPipelineIndexById(@Param("id") Long id);
-
     @Modifying
     @Transactional
     @Query("UPDATE pipeline SET paused = true")

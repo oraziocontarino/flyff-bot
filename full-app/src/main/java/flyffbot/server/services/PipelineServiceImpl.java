@@ -34,8 +34,8 @@ public class PipelineServiceImpl {
         repository.updateSelectedWindowHwndById(pipelineId, selectedWindowHwnd);
     }
 
-    public int findIndex(Long pipelineId) {
-        return repository.findPipelineIndexById(pipelineId);
+    public int count() {
+        return Long.valueOf(repository.count()).intValue();
     }
 
     public void pauseAll(){
