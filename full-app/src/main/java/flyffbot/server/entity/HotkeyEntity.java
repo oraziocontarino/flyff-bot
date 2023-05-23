@@ -9,6 +9,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import org.hibernate.annotations.Formula;
 
 @Entity(name = "hotkey")
 @Data
@@ -25,5 +26,7 @@ public class HotkeyEntity {
     private boolean active;
     private long lastTimeExecutedMs;
     private long pipelineId;
-    private boolean executing;
+
+    @Formula("last_time_executed_ms + delay_ms")
+    private Long nextExecutionTimeMs;
 }

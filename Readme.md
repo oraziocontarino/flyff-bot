@@ -1,45 +1,89 @@
-# Flyff-Bot
+# Flyff Bot
 
-This is a simple Flyff bot that allows to automate key-pressing.
-It requires Java SE 11 (or newer) to be installed in OS, it can be downloaded from official site:
-https://www.oracle.com/it/java/technologies/javase/jdk11-archive-downloads.html
-Features:
-- Auto key press: Ctrl + {0 to 9}, Alt + {0 - 9}, {0 to 9} keys
-- Custom Action Slot (CAS): Configure a list of key (and cast time) of skills to execute sequentially
-- Multi client: can handle up to 3 client simultaneously
-- Auto save configuration: bot configuration is stored locally, opening again will re-set last configuration
-- Global Hotkeys: Easy and fast way to add/remove new window handlers (bot per specific flyff window)
-- Pipe Hotkeys: Easy and fast way to activate bot features in given pipe
+This is a simple Flyff bot that allows to automate key pressing.
+It allows to play with up to 4 different Flyff windows, scheduling periodic actions on each of them, without impacting the others.
 
-Tested on x32 and x64 Chrome and Mozilla Firefox
-- Chrome: requires window to be active to process key events
+Application has been tested on x32 and x64 Chrome and Mozilla Firefox
+
+- Chrome
+  Requires window to be active to process key events. It means if you minimize it, actions sent by bot to browser will be ignored by Chrome browser.
 - Firefox: works 100% in background
 
-Global HotKeys:
-- {Alt + A}: Add pipeline to process another Flyff window simultaneously
-- {Alt + D}: Remove last pipeline
+## Features
 
-Pipe HotKeys:
-- {Shift + 1}: Pause/Resume pause all action handled by pipe 1
-- {Shift + 2}: Use Custom Action Slot (CAS) in window handled by pipe 1
-- {Shift + 3}: Pause/Resume pause all action handled by pipe 2
-- {Shift + 4}: Use Custom Action Slot (CAS) in window handled by pipe 2
-- {Shift + 5}: Pause/Resume pause all action handled by pipe 3
-- {Shift + 6}: Use Custom Action Slot (CAS) in window handled by pipe 3
+Flyff Bot offers two main features:
 
-## Planned features:
+- Hotkeys Loop
+- Custom Action Slot (CAS)
+
+For details read features details reported below
+
+### Feature: Applicaiton Hotkeys
+
+To interact with a new Flyff Window you have to add a Pipeline.
+To do so you have to use shortcuts repoted below:
+
+- Add pipeline: {Alt + A}
+  It allows to process another Flyff window simultaneously
+- Remove pipeline: {Alt + D}
+  Remove last inserted pipelines stopping all scheduled actions
+
+### Feature: Hotkeys Loop
+
+Configure auto key press of the following key combination.
+This feature can be paused for a specific pipeline via additional preconfigured hotkey.
+To pause/resume this feature in pipeline 1 hit {Shift + 1}
+To pause/resume this feature in pipeline 2 hit {Shift + 3}
+To pause/resume this feature in pipeline 3 hit {Shift + 5}
+To pause/resume this feature in pipeline 4 hit {Shift + 7}
+
+Allowed keys combinations:
+
+- Ctrl + {0 - 9 key}
+- Alt + {0 - 9 key}
+- {0 - 9 key}
+
+### Feature: Custom Action Slot (CAS)
+
+Configure a list of key (and cast time) of skills to execute sequentially.
+This feature can be paused for a specific pipeline via additional preconfigured hotkey.
+To pause/resume this feature in pipeline 1 hit {Shift + 2}
+To pause/resume this feature in pipeline 2 hit {Shift + 4}
+To pause/resume this feature in pipeline 3 hit {Shift + 6}
+To pause/resume this feature in pipeline 4 hit {Shift + 8}
+
+Allowed keys combinations:
+
+- Ctrl + {0 - 9 key}
+- Alt + {0 - 9 key}
+- {0 - 9 key}
+
+### Feature: Auto save configuration
+
+Bot configuration is stored locally. That means you have to configure bot behaviour only the first time.
+If you close and re-open the application you will be ready to go!
+
+### Planned features
+
 - Auto-refresh follow
 - Auto-detect Captcha (only click on box)
 - Randimize delays between actions to avoid RECAPTCHA popup
 
-## Build Native API for Windows (command line)
+## Develop / Build / Release
+
+Want to customize, build and release your own version? Follow the wiki reported below.
+
+### Build Native API for Windows (command line)
+
 - Install GCC MinGW64
 - Run build.bat inside NativeAPI/Windows folder
 
-## Build & Run/Debug Native API for Windows (VS Code guide)
+### Build & Run/Debug Native API for Windows (VS Code guide)
+
 - Install GCC MinGW64
 - Create launch.json file inside .vscode folder
 - Pase following configuration:
+
 ```json
 {
   "version": "0.2.0",
@@ -56,7 +100,7 @@ Pipe HotKeys:
       "environment": [],
       "externalConsole": false, //set to true to see output in cmd instead
       "MIMode": "gdb",
-      "miDebuggerPath": "PATH_TO_DEBUGGER_EXE",//Ex: "C:\\MinGW64\\bin\\gdb.exe",
+      "miDebuggerPath": "PATH_TO_DEBUGGER_EXE", //E.g. "C:\\MinGW64\\bin\\gdb.exe",
       "setupCommands": [
         {
           "description": "Enable pretty-printing for gdb",
@@ -77,7 +121,7 @@ Pipe HotKeys:
       "environment": [],
       "externalConsole": false, //set to true to see output in cmd instead
       "MIMode": "gdb",
-      "miDebuggerPath": "PATH_TO_DEBUGGER_EXE",//Ex: "C:\\MinGW64\\bin\\gdb.exe",
+      "miDebuggerPath": "PATH_TO_DEBUGGER_EXE", //E.g. "C:\\MinGW64\\bin\\gdb.exe",
       "setupCommands": [
         {
           "description": "Enable pretty-printing for gdb",
@@ -87,19 +131,22 @@ Pipe HotKeys:
       ],
       "preLaunchTask": "g++ build & run active file"
     }
-    ]
+  ]
 }
 ```
+
 - Edit json field 'miDebuggerPath' in each section (run, debug) with the path of mingw debugger exe file
 - Build & Run main.cpp
 
 At this point you should have a file named 'main.exe' in the same directory of main.cpp.
 This file is the one used by the java client to send "fetch-windows-list" and "send-key-stroke" commands to Flyff window
 
-## Build & Run Java client
-- Generate native api executable (main.exe)
-- Copy/paste it to JavaClient/resources (overwrite if needed)
-- Run Application.java
-## Create Java executable jar
-- Via maven run: mvn clean package
-- Go to target folder and run JavaClient-Vx.y.z to start using FlyffBot
+### Build modules
+
+From root folder execute `cmd> build.bat`
+If you want to skip single module build add following args to the previous command:
+
+- Skip ReactJs module: `--skip-fe`
+- Skip Spring module: `--skip-full-app`
+- Skip Launcher module: `--skip-launcher`
+- skip Installer module: `--skip-installer`

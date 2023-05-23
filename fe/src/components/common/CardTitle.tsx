@@ -9,22 +9,25 @@ interface FBCardTitleProps {
   title: string;
   statusIcon?: ActionStatus;
   statusTitles?: Map<ActionStatus, JSX.Element>;
-  i?: number;
+  pipelineId?: number;
 }
 
 export const FBCardTitle: React.FC<FBCardTitleProps> = ({
   title,
   statusIcon = ActionStatus.INVISIBLE,
   statusTitles,
-  i = 0,
+  pipelineId,
 }) => {
-  const isValidHwnd = useSelector(selectors.isSelectedAndExistsSelector(i));
   const titleNode = useMemo(
     () => <div className="fb-card-title">{title}</div>,
     [title]
   );
 
-  if (statusIcon === ActionStatus.INVISIBLE || !isValidHwnd) {
+  const isValidHwnd = useSelector(
+    selectors.isSelectedAndExistsSelector(pipelineId)
+  );
+
+  if (statusIcon === ActionStatus.INVISIBLE || !isValidHwnd || !pipelineId) {
     return titleNode;
   }
 
@@ -36,7 +39,7 @@ export const FBCardTitle: React.FC<FBCardTitleProps> = ({
           statusIcon === ActionStatus.PAUSED ? "color-red-5" : "color-blue-5"
         }
       >
-        <Tooltip placement="top" title={statusTitles?.get(statusIcon)}>
+        <Tooltip placement="left" title={statusTitles?.get(statusIcon)}>
           {statusIcon === ActionStatus.PAUSED ? (
             <PauseCircleOutlined />
           ) : (

@@ -164,7 +164,7 @@ const CustomActionSlot: React.FC<FBFeature> = ({ pipelineId, i }) => {
             })}
             statusIcon={customActionSlotStatus}
             statusTitles={titles}
-            i={i}
+            pipelineId={pipelineId}
           />
         }
         key="1"

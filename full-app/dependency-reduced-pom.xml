@@ -10,7 +10,7 @@
   <groupId>flyffbot</groupId>
   <artifactId>FlyffBot</artifactId>
   <name>FlyffBot</name>
-  <version>1.0-SNAPSHOT</version>
+  <version>0.4.4</version>
   <build>
     <plugins>
       <plugin>

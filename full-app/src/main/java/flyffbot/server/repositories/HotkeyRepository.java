@@ -8,6 +8,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map;
 
 public interface HotkeyRepository extends CrudRepository<HotkeyEntity, Long> {
     HotkeyEntity findLastByPipelineId(@Param("pipelineId") Long pipelineId);
@@ -37,11 +38,6 @@ public interface HotkeyRepository extends CrudRepository<HotkeyEntity, Long> {
     @Query("UPDATE hotkey SET lastTimeExecutedMs = :lastTimeExecutedMs WHERE id = :id")
     void updateLastTimeExecutedMs(long id, long lastTimeExecutedMs);
 
-    @Modifying
-    @Transactional
-    @Query("UPDATE hotkey SET executing = :executing WHERE id = :id")
-    void updateExecuting(Long id, boolean executing);
-
     List<HotkeyEntity> findByPipelineId(long pipelineId);
 
     @Modifying
@@ -49,6 +45,6 @@ public interface HotkeyRepository extends CrudRepository<HotkeyEntity, Long> {
     @Query("UPDATE hotkey SET active = false")
     List<HotkeyEntity> disableAll();
 
-    @Query("SELECT h from hotkey h where active = true")
-    List<HotkeyEntity> findAllActive();
+    @Query("SELECT h from hotkey h where active = true ORDER BY nextExecutionTimeMs ASC")
+    List<HotkeyEntity> findAllActiveOrderByNextExecutionTimeMsAsc();
 }

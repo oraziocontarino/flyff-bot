@@ -83,16 +83,18 @@ const customActionSlotsConfigurationSelector = (pipelineId: number) =>
         ?.customActionSlots
   );
 
-const isSelectedAndExistsSelector = (pipelineId: number) =>
-  createSelector(
-    pipelineConfigurationSelector(pipelineId),
-    windowsSelector,
-    (pipeline, windows) => {
-      const selectedHwnd = pipeline?.selectedWindowHwnd;
-      const exists = windows.some((item) => item.hwnd === selectedHwnd);
-      return selectedHwnd != null && exists;
-    }
-  );
+const isSelectedAndExistsSelector = (pipelineId?: number) =>
+  pipelineId
+    ? createSelector(
+        pipelineConfigurationSelector(pipelineId),
+        windowsSelector,
+        (pipeline, windows) => {
+          const selectedHwnd = pipeline?.selectedWindowHwnd;
+          const exists = windows.some((item) => item.hwnd === selectedHwnd);
+          return selectedHwnd != null && exists;
+        }
+      )
+    : createSelector(() => false);
 
 const customActionSlotCountSelector = (pipelineId: number) =>
   createSelector(

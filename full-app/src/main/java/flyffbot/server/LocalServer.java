@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.event.EventListener;
@@ -32,22 +33,24 @@ public class LocalServer {
 
     @Autowired
     private KeyDownHookService keyDownHookService;
-
     @Autowired
     private EventsServiceImpl eventsService;
-
     @Autowired
     private ScheduledExecutorService scheduledExecutorService;
     @Autowired
     private SocketMessageSenderServiceImpl socketMessageSenderService;
     @Autowired
     private PipelineServiceImpl pipelineService;
-    @Autowired
-    private HotkeyServiceImpl hotkeyService;
 
-    public static void run(Runnable runnable){
+    public static ConfigurableApplicationContext context;
+
+    public static void run(Runnable runnable) {
         onServerReady = runnable;
-        new SpringApplicationBuilder(LocalServer.class).headless(false).run();
+        context = new SpringApplicationBuilder(LocalServer.class).headless(false).run();
+    }
+
+    public static void close() {
+        context.close();
     }
 
     @EventListener(ApplicationReadyEvent.class)
@@ -68,6 +71,11 @@ public class LocalServer {
                 TimeUnit.SECONDS
         );
         log.info("Window list scheduler - Initialization completed!");
+
+        log.info("Hotkeys Worker - Initializing...");
+        eventsService.initScheduler();
+        log.info("Hotkeys Worker - Initialization completed!");
+
         onServerReady.run();
     }
 
@@ -76,24 +84,23 @@ public class LocalServer {
 
         // Check / Create directories to cfg file
         val directories = new File(absDirectories);
-        if(!directories.exists() && !directories.mkdirs()){
+        if(!directories.exists() && !directories.mkdirs()) {
             throw new SaveLoadException("Save - Unable to find/create directories to: "+directories.getAbsolutePath());
         }
 
-        try(val inputStream = LocalServer.class.getClassLoader().getResourceAsStream("main.exe")){
+        try(val inputStream = LocalServer.class.getClassLoader().getResourceAsStream("main.exe")) {
             val tmp = Paths.get(folderName, "flyff-bot-native-api.exe").toAbsolutePath();
             assert inputStream != null;
             Files.copy(inputStream, tmp, StandardCopyOption.REPLACE_EXISTING);
             IOUtils.closeQuietly(inputStream);
             log.debug("Flyff bot native api copied to: {}", tmp.toAbsolutePath());
-        }catch (Exception e){
+        } catch (Exception e){
             log.error("Error occurred while coping native api to temp folder", e);
         }
     }
 
-    private void initHotkeysScheduler(){
+    private void initHotkeysScheduler() {
         pipelineService.pauseAll();
-        hotkeyService.findAllActive().forEach(eventsService::scheduleSingleHotkey);
 
         val pipelines = pipelineService.findAllPipes();
         for(int i = 0; i < pipelines.size(); i++) {

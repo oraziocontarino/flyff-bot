@@ -43,7 +43,6 @@ public class NativeSendKeyService {
                 outputBuilder.append(System.getProperty("line.separator"));
             }
             val result = outputBuilder.toString();
-            log.debug("SendKey - {} - command: {} - Response: {}", command, status, result);
             return mapper.mapVoid(result);
         }catch (Exception e){
             log.error("SendKey - "+status+" - Error occurred while running API: ", e);

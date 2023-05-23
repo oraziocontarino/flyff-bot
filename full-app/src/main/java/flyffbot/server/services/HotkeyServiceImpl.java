@@ -16,8 +16,8 @@ public class HotkeyServiceImpl {
     @Autowired
     private HotkeyRepository repository;
 
-    public HotkeyEntity addHotkey(long pipelineId) {
-        return repository.save(
+    public void addHotkey(long pipelineId) {
+        repository.save(
                 HotkeyEntity.builder()
                         .pipelineId(pipelineId)
                         .hexKeyCode0("")
@@ -29,26 +29,18 @@ public class HotkeyServiceImpl {
         );
     }
 
-    public HotkeyEntity updateDelay(Long hotkeyId, Long delayMs) {
+    public void updateDelay(Long hotkeyId, Long delayMs) {
         repository.updateDelayMsById(hotkeyId, delayMs);
-        return repository.findById(hotkeyId)
-                .orElseThrow();
     }
-    public HotkeyEntity updateActive(Long hotkeyId, boolean active) {
+    public void updateActive(Long hotkeyId, boolean active) {
         repository.updateActiveById(hotkeyId, active);
-        return repository.findById(hotkeyId).orElseThrow();
     }
 
-    public void updateHexKeyCode(Long id, int keyIndex, String hexValue){
+    public void updateHexKeyCode(Long id, int keyIndex, String hexValue) {
         switch (keyIndex) {
-            case 0:
-                repository.updateHexKeyCode0ById(id, hexValue);
-                break;
-            case 1:
-                repository.updateHexKeyCode1ById(id, hexValue);
-                break;
-            default:
-                throw new HotkeyNotFound("Invalid key index, allowed: 0=first key, 1=second key");
+            case 0 -> repository.updateHexKeyCode0ById(id, hexValue);
+            case 1 -> repository.updateHexKeyCode1ById(id, hexValue);
+            default -> throw new HotkeyNotFound("Invalid key index, allowed: 0=first key, 1=second key");
         }
     }
 
@@ -59,16 +51,13 @@ public class HotkeyServiceImpl {
     public void updateLastTimeExecutedMs(long id, long lastTimeExecutedMs){
         repository.updateLastTimeExecutedMs(id, lastTimeExecutedMs);
     }
-    public void updateExecuting(Long id, boolean executing) {
-        repository.updateExecuting(id, executing);
-    }
 
     public Optional<HotkeyEntity> findById(long id) {
         return repository.findById(id);
     }
 
-    public List<HotkeyEntity> findAllActive() {
-        return repository.findAllActive();
+    public List<HotkeyEntity> findAllActiveOrderByNextExecutionTimeMsAsc() {
+        return repository.findAllActiveOrderByNextExecutionTimeMsAsc();
     }
 
     public List<HotkeyEntity> findByPipelineId(long pipelineId) {

@@ -95,7 +95,7 @@ const HotKeysLoop: React.FC<FBFeature> = ({ pipelineId, i }) => {
             title={t("pipe.hotKeysLoop.title")}
             statusIcon={status}
             statusTitles={titles}
-            i={i}
+            pipelineId={pipelineId}
           />
         }
         key="1"

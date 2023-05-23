@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @Slf4j
@@ -51,8 +52,11 @@ public class PipelineServiceImpl {
         return toDelete.getId();
     }
 
-    public PipelineEntity addNewPipe() {
-        return repository.save(PipelineEntity.builder().build());
+    public Optional<PipelineEntity> addNewPipe() {
+        if(repository.count() < 4) {
+            return Optional.of(repository.save(PipelineEntity.builder().build()));
+        }
+        return Optional.empty();
     }
 
     public void updateCustomActionSlotRunning(long id, boolean isRunning) {

@@ -3,6 +3,7 @@ package flyffbot.server.services;
 import flyffbot.server.dto.GlobalHotkeyDto;
 import flyffbot.server.enums.EventEnum;
 import flyffbot.server.enums.KeyStatus;
+import flyffbot.server.services.nativeservices.SingletonAppService;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.jnativehook.GlobalScreen;
@@ -61,14 +62,12 @@ public class KeyDownHookService implements NativeKeyListener {
 			GlobalScreen.registerNativeHook();
 		} catch (NativeHookException ex) {
 			log.error("There was a problem registering the native hook.", ex);
-			System.exit(1);
+			SingletonAppService.releaseAndClose(1);
 		}
 
 		GlobalScreen.addNativeKeyListener(this);
 		log.info("KeyDown Listener - Initialization completed!");
 	}
-
-
 
 	@Override
 	public void nativeKeyPressed(NativeKeyEvent e) {
@@ -158,23 +157,24 @@ public class KeyDownHookService implements NativeKeyListener {
 				log.debug("Running: {}", item.getEvent());
 				val pipelineId = item.getPipeId();
 				switch (item.getEvent()) {
-					case ADD_PIPE:
-						val pipe = pipelineService.addNewPipe();
-						val index = pipelineService.findIndex(pipe.getId());
-						addKeyBinding(pipe.getId(), index);
-						break;
-					case REMOVE_PIPE:
+					case ADD_PIPE ->
+							pipelineService.addNewPipe().ifPresent(pipe -> {
+								val index = pipelineService.findIndex(pipe.getId());
+								addKeyBinding(pipe.getId(), index);
+							});
+					case REMOVE_PIPE -> {
 						val deletedId = pipelineService.removeLastPipe();
 						removeKeyBinding(deletedId);
-						break;
-					case TOGGLE_PAUSE:
+					}
+					case TOGGLE_PAUSE -> {
 						pipelineService.updateTogglePause(pipelineId);
-						break;
-					case USE_CUSTOM_ACTION_SLOT:
-						eventsService.scheduleCustomActionSlot(pipelineId);
-						break;
-					default:
-						log.error("Unexpected action found: {}", item.getEvent());
+						if(pipelineService.findPipeById(pipelineId).isPaused()){
+							eventsService.stopCustomActionSlotExecution();
+							pipelineService.updateCustomActionSlotRunning(pipelineId, false);
+						}
+					}
+					case USE_CUSTOM_ACTION_SLOT -> eventsService.scheduleCustomActionSlot(pipelineId);
+					default -> log.error("Unexpected action found: {}", item.getEvent());
 				}
 				socketMessageSenderService.sendUpdatedConfiguration();
 			});
